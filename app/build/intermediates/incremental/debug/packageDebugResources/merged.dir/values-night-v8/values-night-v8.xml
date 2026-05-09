@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Base.Theme.FlowTimer" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/flow_sky</item>
+        <item name="colorSecondary">@color/flow_sky_dark</item>
+        <item name="android:statusBarColor">@color/flow_ivory</item>
+        <item name="android:navigationBarColor">@color/flow_ivory</item>
+        <item name="android:windowBackground">@color/flow_ivory</item>
+    </style>
+    <style name="Theme.FlowTimer" parent="Base.Theme.FlowTimer"/>
+</resources>

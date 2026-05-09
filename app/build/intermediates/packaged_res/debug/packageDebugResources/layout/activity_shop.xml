@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#F5F5F5">
+    <TextView android:id="@+id/tvShopTitle" android:layout_width="match_parent" android:layout_height="60dp" android:background="@color/flow_ivory" android:gravity="center" android:text="상점" android:textColor="@color/black" android:textSize="20sp" android:textStyle="bold"/>
+    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerInParent="true" android:gravity="center" android:orientation="vertical">
+        <ImageView android:layout_width="100dp" android:layout_height="100dp" android:alpha="0.5" android:src="@drawable/screenshot"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="아이템 준비 중입니다." android:textColor="#888888" android:textSize="18sp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="조금만 기다려 주십시오." android:textColor="#AAAAAA" android:textSize="14sp"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_alignParentBottom="true" android:layout_marginBottom="30dp" android:gravity="center" android:orientation="horizontal">
+        <Button android:id="@+id/btnShopBack" android:background="@drawable/bg_button_neutral" android:backgroundTint="@color/flow_button_neutral" android:textColor="@color/white" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="나가기" android:textAllCaps="false"/>
+        <Button android:id="@+id/btnGoMain" android:background="@drawable/bg_button_main" android:backgroundTint="@color/flow_button_main" android:textColor="@color/flow_button_main_text" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="메인 화면으로 이동" android:textAllCaps="false"/>
+    </LinearLayout>
+</RelativeLayout>

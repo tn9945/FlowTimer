@@ -1,0 +1,208 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.example.flowtimer"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+9        android:targetSdkVersion="36" />
+10
+11    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+11-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:5:5-114
+11-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:5:22-75
+12    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+12-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:6:5-119
+12-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:6:22-74
+13
+14    <permission
+14-->[androidx.core:core:1.13.0] /Users/kbs/.gradle/caches/8.13/transforms/d56d4dd3bc63dd87fc9e775432180d52/transformed/core-1.13.0/AndroidManifest.xml:22:5-24:47
+15        android:name="com.example.flowtimer.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+15-->[androidx.core:core:1.13.0] /Users/kbs/.gradle/caches/8.13/transforms/d56d4dd3bc63dd87fc9e775432180d52/transformed/core-1.13.0/AndroidManifest.xml:23:9-81
+16        android:protectionLevel="signature" />
+16-->[androidx.core:core:1.13.0] /Users/kbs/.gradle/caches/8.13/transforms/d56d4dd3bc63dd87fc9e775432180d52/transformed/core-1.13.0/AndroidManifest.xml:24:9-44
+17
+18    <uses-permission android:name="com.example.flowtimer.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+18-->[androidx.core:core:1.13.0] /Users/kbs/.gradle/caches/8.13/transforms/d56d4dd3bc63dd87fc9e775432180d52/transformed/core-1.13.0/AndroidManifest.xml:26:5-97
+18-->[androidx.core:core:1.13.0] /Users/kbs/.gradle/caches/8.13/transforms/d56d4dd3bc63dd87fc9e775432180d52/transformed/core-1.13.0/AndroidManifest.xml:26:22-94
+19
+20    <application
+20-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:8:5-58:19
+21        android:allowBackup="true"
+21-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:9:9-35
+22        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+22-->[androidx.core:core:1.13.0] /Users/kbs/.gradle/caches/8.13/transforms/d56d4dd3bc63dd87fc9e775432180d52/transformed/core-1.13.0/AndroidManifest.xml:28:18-86
+23        android:debuggable="true"
+24        android:extractNativeLibs="false"
+25        android:icon="@drawable/flow_timer_app_icon_transparent"
+25-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:10:9-65
+26        android:label="@string/app_name"
+26-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:11:9-41
+27        android:roundIcon="@drawable/flow_timer_app_icon_transparent"
+27-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:12:9-70
+28        android:supportsRtl="true"
+28-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:13:9-35
+29        android:testOnly="true"
+30        android:theme="@style/Theme.FlowTimer" >
+30-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:14:9-47
+31        <activity
+31-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:16:9-18:40
+32            android:name="com.example.flowtimer.DeveloperModeActivity"
+32-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:17:13-50
+33            android:exported="false" />
+33-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:18:13-37
+34        <activity
+34-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:19:9-21:40
+35            android:name="com.example.flowtimer.FocusStatsDetailActivity"
+35-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:20:13-53
+36            android:exported="false" />
+36-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:21:13-37
+37        <activity
+37-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:22:9-24:40
+38            android:name="com.example.flowtimer.FocusStatsActivity"
+38-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:23:13-47
+39            android:exported="false" />
+39-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:24:13-37
+40        <activity
+40-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:25:9-27:40
+41            android:name="com.example.flowtimer.FocusResultActivity"
+41-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:26:13-48
+42            android:exported="false" />
+42-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:27:13-37
+43        <activity
+43-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:28:9-30:40
+44            android:name="com.example.flowtimer.ShopActivity"
+44-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:29:13-41
+45            android:exported="false" />
+45-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:30:13-37
+46        <activity
+46-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:31:9-33:40
+47            android:name="com.example.flowtimer.CustomizeActivity"
+47-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:32:13-46
+48            android:exported="false" />
+48-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:33:13-37
+49        <activity
+49-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:34:9-36:40
+50            android:name="com.example.flowtimer.WithdrawActivity"
+50-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:35:13-45
+51            android:exported="false" />
+51-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:36:13-37
+52        <activity
+52-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:37:9-39:40
+53            android:name="com.example.flowtimer.SignupActivity"
+53-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:38:13-43
+54            android:exported="false" />
+54-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:39:13-37
+55        <activity
+55-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:40:9-42:40
+56            android:name="com.example.flowtimer.MainActivity"
+56-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:41:13-41
+57            android:exported="false" />
+57-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:42:13-37
+58        <activity
+58-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:43:9-45:40
+59            android:name="com.example.flowtimer.CharacterSelectActivity"
+59-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:44:13-52
+60            android:exported="false" />
+60-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:45:13-37
+61        <activity
+61-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:46:9-48:40
+62            android:name="com.example.flowtimer.GameActivity"
+62-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:47:13-41
+63            android:exported="false" />
+63-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:48:13-37
+64        <activity
+64-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:49:9-56:20
+65            android:name="com.example.flowtimer.LoginActivity"
+65-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:50:13-42
+66            android:exported="true" >
+66-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:51:13-36
+67            <intent-filter>
+67-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:52:13-55:29
+68                <action android:name="android.intent.action.MAIN" />
+68-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:53:17-69
+68-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:53:25-66
+69
+70                <category android:name="android.intent.category.LAUNCHER" />
+70-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:54:17-77
+70-->/Users/kbs/AndroidStudioProjects/FlowTimer/app/src/main/AndroidManifest.xml:54:27-74
+71            </intent-filter>
+72        </activity>
+73
+74        <service
+74-->[androidx.room:room-runtime-android:2.8.4] /Users/kbs/.gradle/caches/8.13/transforms/ad173dad547e4a460d1a961aa5d61d83/transformed/room-runtime/AndroidManifest.xml:24:9-28:63
+75            android:name="androidx.room.MultiInstanceInvalidationService"
+75-->[androidx.room:room-runtime-android:2.8.4] /Users/kbs/.gradle/caches/8.13/transforms/ad173dad547e4a460d1a961aa5d61d83/transformed/room-runtime/AndroidManifest.xml:25:13-74
+76            android:directBootAware="true"
+76-->[androidx.room:room-runtime-android:2.8.4] /Users/kbs/.gradle/caches/8.13/transforms/ad173dad547e4a460d1a961aa5d61d83/transformed/room-runtime/AndroidManifest.xml:26:13-43
+77            android:exported="false" />
+77-->[androidx.room:room-runtime-android:2.8.4] /Users/kbs/.gradle/caches/8.13/transforms/ad173dad547e4a460d1a961aa5d61d83/transformed/room-runtime/AndroidManifest.xml:27:13-37
+78
+79        <provider
+79-->[androidx.emoji2:emoji2:1.3.0] /Users/kbs/.gradle/caches/8.13/transforms/bdc0b7e042bb3252c29f3c7a4af43871/transformed/emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
+80            android:name="androidx.startup.InitializationProvider"
+80-->[androidx.emoji2:emoji2:1.3.0] /Users/kbs/.gradle/caches/8.13/transforms/bdc0b7e042bb3252c29f3c7a4af43871/transformed/emoji2-1.3.0/AndroidManifest.xml:25:13-67
+81            android:authorities="com.example.flowtimer.androidx-startup"
+81-->[androidx.emoji2:emoji2:1.3.0] /Users/kbs/.gradle/caches/8.13/transforms/bdc0b7e042bb3252c29f3c7a4af43871/transformed/emoji2-1.3.0/AndroidManifest.xml:26:13-68
+82            android:exported="false" >
+82-->[androidx.emoji2:emoji2:1.3.0] /Users/kbs/.gradle/caches/8.13/transforms/bdc0b7e042bb3252c29f3c7a4af43871/transformed/emoji2-1.3.0/AndroidManifest.xml:27:13-37
+83            <meta-data
+83-->[androidx.emoji2:emoji2:1.3.0] /Users/kbs/.gradle/caches/8.13/transforms/bdc0b7e042bb3252c29f3c7a4af43871/transformed/emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
+84                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+84-->[androidx.emoji2:emoji2:1.3.0] /Users/kbs/.gradle/caches/8.13/transforms/bdc0b7e042bb3252c29f3c7a4af43871/transformed/emoji2-1.3.0/AndroidManifest.xml:30:17-75
+85                android:value="androidx.startup" />
+85-->[androidx.emoji2:emoji2:1.3.0] /Users/kbs/.gradle/caches/8.13/transforms/bdc0b7e042bb3252c29f3c7a4af43871/transformed/emoji2-1.3.0/AndroidManifest.xml:31:17-49
+86            <meta-data
+86-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/kbs/.gradle/caches/8.13/transforms/5efaeab10af8918bcd8a4a56c795510a/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:29:13-31:52
+87                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+87-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/kbs/.gradle/caches/8.13/transforms/5efaeab10af8918bcd8a4a56c795510a/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:30:17-78
+88                android:value="androidx.startup" />
+88-->[androidx.lifecycle:lifecycle-process:2.6.2] /Users/kbs/.gradle/caches/8.13/transforms/5efaeab10af8918bcd8a4a56c795510a/transformed/lifecycle-process-2.6.2/AndroidManifest.xml:31:17-49
+89            <meta-data
+89-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:29:13-31:52
+90                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+90-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:30:17-85
+91                android:value="androidx.startup" />
+91-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:31:17-49
+92        </provider>
+93
+94        <receiver
+94-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:34:9-52:20
+95            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+95-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:35:13-76
+96            android:directBootAware="false"
+96-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:36:13-44
+97            android:enabled="true"
+97-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:37:13-35
+98            android:exported="true"
+98-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:38:13-36
+99            android:permission="android.permission.DUMP" >
+99-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:39:13-57
+100            <intent-filter>
+100-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:40:13-42:29
+101                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+101-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:41:17-91
+101-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:41:25-88
+102            </intent-filter>
+103            <intent-filter>
+103-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:43:13-45:29
+104                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+104-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:44:17-85
+104-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:44:25-82
+105            </intent-filter>
+106            <intent-filter>
+106-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:46:13-48:29
+107                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+107-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:47:17-88
+107-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:47:25-85
+108            </intent-filter>
+109            <intent-filter>
+109-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:49:13-51:29
+110                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+110-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:50:17-95
+110-->[androidx.profileinstaller:profileinstaller:1.4.0] /Users/kbs/.gradle/caches/8.13/transforms/4e1cd8e5ec9f55f72ace3f5c4cf61431/transformed/profileinstaller-1.4.0/AndroidManifest.xml:50:25-92
+111            </intent-filter>
+112        </receiver>
+113    </application>
+114
+115</manifest>

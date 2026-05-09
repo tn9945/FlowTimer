@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/flow_ivory">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="집중 결과" android:textColor="@color/flow_text_primary" android:textSize="28sp" android:textStyle="bold"/>
+        <TextView android:id="@+id/tvSessionRange" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="세션 시간" android:textColor="@color/flow_text_hint" android:textSize="14sp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="총 측정 시간" android:textStyle="bold"/>
+        <TextView android:id="@+id/tvTotalDuration" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="00시간 00분 00초" android:textSize="18sp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="순집중 시간" android:textStyle="bold"/>
+        <TextView android:id="@+id/tvFocusDuration" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="00시간 00분 00초" android:textSize="18sp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="휴식 시간" android:textStyle="bold"/>
+        <TextView android:id="@+id/tvBreakDuration" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="00시간 00분 00초" android:textSize="18sp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="학습 앱 사용 시간" android:textStyle="bold"/>
+        <TextView android:id="@+id/tvStudyDuration" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="00시간 00분 00초" android:textSize="18sp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="방해 앱 사용 시간" android:textStyle="bold"/>
+        <TextView android:id="@+id/tvDistractionDuration" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="00시간 00분 00초" android:textSize="18sp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="집중 점수" android:textStyle="bold"/>
+        <TextView android:id="@+id/tvScore" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="0점" android:textSize="18sp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="앱 전환 횟수" android:textStyle="bold"/>
+        <TextView android:id="@+id/tvSwitchCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="0" android:textSize="18sp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="가장 오래 사용한 앱" android:textStyle="bold"/>
+        <TextView android:id="@+id/tvTopApp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="기록 없음" android:textSize="18sp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="획득 보상" android:textStyle="bold"/>
+        <TextView android:id="@+id/tvReward" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="코인 0 / 경험치 0 / 시간 0분" android:textSize="18sp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="앱별 활동 기록" android:textStyle="bold"/>
+        <LinearLayout android:id="@+id/layoutAppRecords" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:background="@drawable/bg_card" android:orientation="vertical" android:padding="8dp"/>
+        <Button android:id="@+id/btnGoMain" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="24dp" android:background="@drawable/bg_button_main" android:backgroundTint="@color/flow_button_main" android:text="메인 화면으로 이동" android:textColor="@color/flow_button_main_text" android:textAllCaps="false"/>
+    </LinearLayout>
+</ScrollView>

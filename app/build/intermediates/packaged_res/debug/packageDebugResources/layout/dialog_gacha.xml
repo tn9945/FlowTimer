@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="20dp" android:background="@color/flow_ivory" android:gravity="center" android:orientation="vertical" android:padding="30dp">
+    <TextView android:id="@+id/tvGachaTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="30dp" android:text="뽑기 결과" android:textSize="24sp" android:textStyle="bold"/>
+    <ImageView android:id="@+id/imgGachaResult" android:layout_width="150dp" android:layout_height="150dp" android:layout_marginBottom="20dp" android:src="@drawable/screenshot"/>
+    <TextView android:id="@+id/tvGachaResult" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="40dp" android:text="결과" android:textColor="#333333" android:textSize="20sp"/>
+    <Button android:id="@+id/btnGachaConfirm" android:layout_width="match_parent" android:layout_height="60dp" android:text="확인" android:textSize="18sp" android:textStyle="bold" android:background="@drawable/bg_button_gacha" android:backgroundTint="@color/flow_button_gacha" android:textColor="@color/white" android:textAllCaps="false"/>
+</LinearLayout>

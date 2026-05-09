@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="flow_button_customize">#6FA8DC</color>
+    <color name="flow_button_danger">#E25151</color>
+    <color name="flow_button_detail">#4BB8A9</color>
+    <color name="flow_button_developer">#7E8DE0</color>
+    <color name="flow_button_focus">#86C96B</color>
+    <color name="flow_button_gacha">#B984E8</color>
+    <color name="flow_button_game">#F3A53B</color>
+    <color name="flow_button_main">#F8C7C7</color>
+    <color name="flow_button_main_text">#8D3A3A</color>
+    <color name="flow_button_neutral">#9BA7B5</color>
+    <color name="flow_button_shop">#EFB84A</color>
+    <color name="flow_button_stats">#4EA3F1</color>
+    <color name="flow_card_white">#FFFFFFFF</color>
+    <color name="flow_ivory">#FAF8F2</color>
+    <color name="flow_line">#D8E2EC</color>
+    <color name="flow_red">#E25151</color>
+    <color name="flow_sky">#3AA0F5</color>
+    <color name="flow_sky_dark">#1B7ED5</color>
+    <color name="flow_sky_light">#DCEFFE</color>
+    <color name="flow_text_hint">#7C8794</color>
+    <color name="flow_text_primary">#2E3A44</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">FlowTimer</string>
+    <style name="Base.Theme.FlowTimer" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/flow_sky</item>
+        <item name="colorSecondary">@color/flow_sky_dark</item>
+        <item name="android:statusBarColor">@color/flow_ivory</item>
+        <item name="android:navigationBarColor">@color/flow_ivory</item>
+        <item name="android:windowBackground">@color/flow_ivory</item>
+    </style>
+    <style name="Theme.FlowTimer" parent="Base.Theme.FlowTimer"/>
+</resources>

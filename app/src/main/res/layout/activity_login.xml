@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/flow_ivory">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingStart="28dp"
+        android:paddingTop="48dp"
+        android:paddingEnd="28dp"
+        android:paddingBottom="36dp">
+
+        <TextView
+            android:id="@+id/tvLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Flow Timer"
+            android:textColor="@color/flow_sky"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="22dp"
+            android:background="@color/flow_line" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="로그인"
+            android:textColor="@color/flow_text_primary"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etUserId"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="28dp"
+            android:autofillHints="username"
+            android:background="@drawable/bg_edit_text"
+            android:hint="아이디"
+            android:inputType="textVisiblePassword|textNoSuggestions"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/flow_text_primary"
+            android:textColorHint="@color/flow_text_hint" />
+
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="14dp"
+            android:autofillHints="password"
+            android:background="@drawable/bg_edit_text"
+            android:hint="비밀번호"
+            android:inputType="textPassword"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/flow_text_primary"
+            android:textColorHint="@color/flow_text_hint" />
+
+        <ImageButton
+            android:id="@+id/btnLogin"
+            android:layout_width="280dp"
+            android:layout_height="88dp"
+            android:layout_marginTop="22dp"
+            android:adjustViewBounds="true"
+            android:background="@android:color/transparent"
+            android:contentDescription="로그인"
+            android:scaleType="fitCenter"
+            android:src="@drawable/login_button_kr_fixed" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:gravity="center"
+            android:text="아이디는 영문 소문자와 숫자만, 비밀번호는 영문과 숫자만 입력할 수 있습니다."
+            android:textColor="@color/flow_text_hint"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tvGoSignup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="회원가입으로 이동"
+            android:textColor="@color/flow_sky_dark"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</ScrollView>
