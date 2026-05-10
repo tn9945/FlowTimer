@@ -14,7 +14,7 @@
     <color name="flow_red">#E25151</color>
 
     <color name="flow_button_main">#F8C7C7</color>
-    <color name="flow_button_main_text">#8D3A3A</color>
+    <color name="flow_button_main_text">#FFFFFFFF</color>
     <color name="flow_button_focus">#86C96B</color>
     <color name="flow_button_stats">#4EA3F1</color>
     <color name="flow_button_detail">#4BB8A9</color>
