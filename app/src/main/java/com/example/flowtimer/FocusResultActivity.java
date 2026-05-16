@@ -11,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.flowtimer.data.AppUsageRecordEntity;
 import com.example.flowtimer.data.FocusSessionEntity;
+import com.example.flowtimer.focus.AiFocusSummary;
+import com.example.flowtimer.focus.AiFocusSummaryRepository;
 import com.example.flowtimer.focus.AppDisplayHelper;
 import com.example.flowtimer.focus.DurationFormatter;
 import com.example.flowtimer.focus.FocusCategory;
@@ -32,7 +34,11 @@ public class FocusResultActivity extends AppCompatActivity {
     private TextView tvSwitchCount;
     private TextView tvTopApp;
     private TextView tvReward;
+    private TextView tvAiSummary;
+    private TextView tvAiWarning;
+    private TextView tvAiAdvice;
     private LinearLayout layoutAppRecords;
+    private final AiFocusSummaryRepository aiFocusSummaryRepository = new AiFocusSummaryRepository();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +55,9 @@ public class FocusResultActivity extends AppCompatActivity {
         tvSwitchCount = findViewById(R.id.tvSwitchCount);
         tvTopApp = findViewById(R.id.tvTopApp);
         tvReward = findViewById(R.id.tvReward);
+        tvAiSummary = findViewById(R.id.tvAiSummary);
+        tvAiWarning = findViewById(R.id.tvAiWarning);
+        tvAiAdvice = findViewById(R.id.tvAiAdvice);
         layoutAppRecords = findViewById(R.id.layoutAppRecords);
 
         Button btnGoMain = findViewById(R.id.btnGoMain);
@@ -88,6 +97,18 @@ public class FocusResultActivity extends AppCompatActivity {
             tvTopApp.setText("기록 없음 · 00분 00초");
         }
 
+        bindAiSummary(session, records);
+        bindAppRecords(records);
+    }
+
+    private void bindAiSummary(FocusSessionEntity session, List<AppUsageRecordEntity> records) {
+        AiFocusSummary aiSummary = aiFocusSummaryRepository.createLocalSummary(this, session, records);
+        tvAiSummary.setText(aiSummary.getSummaryText());
+        tvAiWarning.setText(aiSummary.getWarningText());
+        tvAiAdvice.setText(aiSummary.getAdviceText());
+    }
+
+    private void bindAppRecords(List<AppUsageRecordEntity> records) {
         layoutAppRecords.removeAllViews();
         if (records == null || records.isEmpty()) {
             TextView emptyView = new TextView(this);
