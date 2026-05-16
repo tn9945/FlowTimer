@@ -29,6 +29,6 @@
         </LinearLayout>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="앱별 활동 기록" android:textStyle="bold"/>
         <LinearLayout android:id="@+id/layoutAppRecords" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:background="@drawable/bg_card" android:orientation="vertical" android:padding="8dp"/>
-        <Button android:id="@+id/btnGoMain" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="24dp" android:background="@drawable/bg_button_main" android:backgroundTint="@color/flow_button_main" android:text="메인 화면으로 이동" android:textColor="@color/flow_button_main_text" android:textAllCaps="false"/>
+        <Button android:id="@+id/btnGoMain" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="24dp" android:background="@drawable/bg_button_red" android:backgroundTint="@color/flow_button_danger" android:text="메인 화면으로 이동" android:textColor="@color/white" android:textAllCaps="false"/>
     </LinearLayout>
 </ScrollView>
