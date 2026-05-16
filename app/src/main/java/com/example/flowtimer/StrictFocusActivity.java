@@ -241,7 +241,7 @@ public class StrictFocusActivity extends AppCompatActivity {
             return;
         }
         increaseEscapeCount();
-        forceReturnToStrictScreen();
+        openBlockedScreen(packageName);
     }
 
     private void scheduleReturnAttempts() {
@@ -258,9 +258,26 @@ public class StrictFocusActivity extends AppCompatActivity {
         if (currentPackage != null && isAllowedPackage(currentPackage)) {
             return;
         }
-        Intent intent = new Intent(this, StrictFocusActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        openBlockedScreen(currentPackage);
+    }
+
+    private void openBlockedScreen(String packageName) {
+        Intent intent = new Intent(this, BlockedAppActivity.class);
+        intent.putExtra(BlockedAppActivity.EXTRA_BLOCKED_APP_NAME, resolveAppName(packageName));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
+    }
+
+    private String resolveAppName(String packageName) {
+        if (packageName == null) {
+            return "이 앱";
+        }
+        try {
+            ApplicationInfo appInfo = getPackageManager().getApplicationInfo(packageName, 0);
+            return getPackageManager().getApplicationLabel(appInfo).toString();
+        } catch (PackageManager.NameNotFoundException e) {
+            return "이 앱";
+        }
     }
 
     private String getForegroundPackageName() {
