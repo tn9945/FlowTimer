@@ -33,6 +33,6 @@
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="앱별 통계" android:textStyle="bold"/>
         <LinearLayout android:id="@+id/layoutAppStats" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:background="@drawable/bg_card" android:orientation="vertical" android:padding="8dp"/>
         <Button android:id="@+id/btnAppDetail" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:background="@drawable/bg_button_detail" android:backgroundTint="@color/flow_button_detail" android:text="앱별 자세히 보기" android:textColor="@color/white" android:textAllCaps="false"/>
-        <Button android:id="@+id/btnGoMain" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="24dp" android:background="@drawable/bg_button_main" android:backgroundTint="@color/flow_button_main" android:text="메인 화면으로 이동" android:textColor="@color/flow_button_main_text" android:textAllCaps="false"/>
+        <Button android:id="@+id/btnGoMain" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="24dp" android:background="@drawable/bg_button_red" android:backgroundTint="@color/flow_button_danger" android:text="메인 화면으로 이동" android:textColor="@color/white" android:textAllCaps="false"/>
     </LinearLayout>
 </ScrollView>
