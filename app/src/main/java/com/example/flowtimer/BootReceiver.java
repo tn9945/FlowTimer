@@ -7,7 +7,6 @@ import android.os.Build;
 
 public class BootReceiver extends BroadcastReceiver {
 
-    private static final long STRICT_FOCUS_DURATION_MILLIS = 25L * 60L * 1000L;
     private static final String STRICT_SESSION_PREF_NAME = "strict_focus_session";
     private static final String KEY_START_TIME = "start_time";
     private static final String KEY_RUNNING = "running";
@@ -31,11 +30,7 @@ public class BootReceiver extends BroadcastReceiver {
     private boolean isStrictFocusRecoverable(Context context) {
         boolean running = context.getSharedPreferences(STRICT_SESSION_PREF_NAME, Context.MODE_PRIVATE).getBoolean(KEY_RUNNING, false);
         long startTimeMillis = context.getSharedPreferences(STRICT_SESSION_PREF_NAME, Context.MODE_PRIVATE).getLong(KEY_START_TIME, 0L);
-        if (!running || startTimeMillis <= 0L) {
-            return false;
-        }
-        long elapsed = System.currentTimeMillis() - startTimeMillis;
-        return elapsed < STRICT_FOCUS_DURATION_MILLIS;
+        return running && startTimeMillis > 0L;
     }
 
     private void clearStrictFocusSession(Context context) {
