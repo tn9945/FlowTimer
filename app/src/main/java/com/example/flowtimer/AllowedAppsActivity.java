@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Telephony;
 import android.telecom.TelecomManager;
-import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
@@ -119,6 +118,7 @@ public class AllowedAppsActivity extends AppCompatActivity {
             saveAllowedPackages();
             Toast.makeText(this, "상호작용 허용 앱 설정이 저장되었습니다.", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, StrictFocusActivity.class);
+            intent.putExtra(FocusModeSelectActivity.EXTRA_STRICT_MODE_TYPE, FocusModeSelectActivity.STRICT_MODE_ALLOWED_APPS);
             startActivity(intent);
             finish();
         });
