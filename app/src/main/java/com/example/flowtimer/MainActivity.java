@@ -76,6 +76,14 @@ public class MainActivity extends AppCompatActivity {
         bindViews();
         bindUserInfo();
         bindActions();
+        handleFocusModeIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleFocusModeIntent(intent);
     }
 
     @Override
@@ -123,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
             if (isCurrentUserSessionRunning()) {
                 stopFocusSession();
             } else {
-                attemptStartFocusSession();
+                startActivity(new Intent(this, FocusModeSelectActivity.class));
             }
         });
         btnResetFocus.setOnClickListener(v -> cancelFocusSession());
@@ -145,6 +153,18 @@ public class MainActivity extends AppCompatActivity {
         });
         tvWithdraw.setOnClickListener(v -> startActivity(new Intent(this, WithdrawActivity.class)));
         tvDeveloperMode.setOnClickListener(v -> startActivity(new Intent(this, DeveloperModeActivity.class)));
+    }
+
+    private void handleFocusModeIntent(Intent intent) {
+        if (intent == null) {
+            return;
+        }
+        if (intent.getBooleanExtra(FocusModeSelectActivity.EXTRA_START_FREE_FOCUS, false)) {
+            intent.removeExtra(FocusModeSelectActivity.EXTRA_START_FREE_FOCUS);
+            if (!isCurrentUserSessionRunning()) {
+                attemptStartFocusSession();
+            }
+        }
     }
 
     private boolean isCurrentUserSessionRunning() {
@@ -172,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         activeFocusSessionStore.saveRunningSession(sessionManager.getUserIdentifier(), System.currentTimeMillis());
-        Toast.makeText(this, "집중 기록을 시작합니다.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "상호작용 허용 모드 집중 기록을 시작합니다.", Toast.LENGTH_SHORT).show();
         syncFocusSessionUi();
     }
 
@@ -196,9 +216,9 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(() -> applyGameReward(rewardResult));
             focusRepository.saveSession(sessionManager.getUserIdentifier(), sessionManager.getUserName(), result, rewardResult, sessionId -> {
                 setMainActionEnabled(true);
-                Intent intent = new Intent(this, FocusResultActivity.class);
-                intent.putExtra(FocusResultActivity.EXTRA_SESSION_ID, sessionId);
-                startActivity(intent);
+                Intent resultIntent = new Intent(this, FocusResultActivity.class);
+                resultIntent.putExtra(FocusResultActivity.EXTRA_SESSION_ID, sessionId);
+                startActivity(resultIntent);
             });
         });
     }
