@@ -11,6 +11,7 @@ import com.example.flowtimer.data.FocusSessionDao;
 import com.example.flowtimer.data.FocusSessionEntity;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -113,9 +114,11 @@ public class FocusRepository {
             Map<String, Long> hourlyMap = new LinkedHashMap<>();
             Map<String, Long> appDurationMap = new LinkedHashMap<>();
             Map<String, String> appLabelMap = new LinkedHashMap<>();
+            Map<String, FocusStatsSnapshot.DailyFocusChartItem> chartMap = createRecentChartBase();
 
             for (FocusSessionEntity session : sessions) {
-                totalFocus += session.getEffectiveFocusDurationMillis() > 0L ? session.getEffectiveFocusDurationMillis() : session.getActiveDurationMillis();
+                long focusValue = session.getEffectiveFocusDurationMillis() > 0L ? session.getEffectiveFocusDurationMillis() : session.getActiveDurationMillis();
+                totalFocus += focusValue;
                 totalBreak += session.getBreakDurationMillis();
                 totalStudy += session.getStudyDurationMillis();
                 totalDistraction += session.getDistractionDurationMillis();
@@ -124,11 +127,19 @@ public class FocusRepository {
                 String weekKey = DurationFormatter.formatWeek(session.getStartTimeMillis());
                 String monthKey = DurationFormatter.formatMonth(session.getStartTimeMillis());
                 String hourKey = DurationFormatter.formatHour(session.getStartTimeMillis());
-                long focusValue = session.getEffectiveFocusDurationMillis() > 0L ? session.getEffectiveFocusDurationMillis() : session.getActiveDurationMillis();
                 dailyMap.put(dayKey, dailyMap.getOrDefault(dayKey, 0L) + focusValue);
                 weeklyMap.put(weekKey, weeklyMap.getOrDefault(weekKey, 0L) + focusValue);
                 monthlyMap.put(monthKey, monthlyMap.getOrDefault(monthKey, 0L) + focusValue);
                 hourlyMap.put(hourKey, hourlyMap.getOrDefault(hourKey, 0L) + focusValue);
+                if (chartMap.containsKey(dayKey)) {
+                    FocusStatsSnapshot.DailyFocusChartItem old = chartMap.get(dayKey);
+                    chartMap.put(dayKey, new FocusStatsSnapshot.DailyFocusChartItem(
+                            dayKey,
+                            old.getTotalDurationMillis() + session.getTotalDurationMillis(),
+                            old.getEffectiveFocusDurationMillis() + focusValue,
+                            old.getDistractionDurationMillis() + session.getDistractionDurationMillis()
+                    ));
+                }
             }
 
             for (AppUsageRecordEntity record : appRecords) {
@@ -147,9 +158,10 @@ public class FocusRepository {
             List<FocusStatsSnapshot.StatItem> monthlyItems = toSortedStatItems(monthlyMap);
             List<FocusStatsSnapshot.StatItem> hourlyItems = toSortedStatItems(hourlyMap);
             List<FocusStatsSnapshot.StatItem> appItems = toSortedAppItems(appDurationMap, appLabelMap);
+            List<FocusStatsSnapshot.DailyFocusChartItem> chartItems = new ArrayList<>(chartMap.values());
             float averageScore = sessions.isEmpty() ? 0f : scoreSum / sessions.size();
 
-            FocusStatsSnapshot snapshot = new FocusStatsSnapshot(totalFocus, totalBreak, totalStudy, totalDistraction, averageScore, sessions.size(), dailyItems, weeklyItems, monthlyItems, hourlyItems, appItems);
+            FocusStatsSnapshot snapshot = new FocusStatsSnapshot(totalFocus, totalBreak, totalStudy, totalDistraction, averageScore, sessions.size(), dailyItems, weeklyItems, monthlyItems, hourlyItems, appItems, chartItems);
             mainHandler.post(() -> callback.onLoaded(snapshot));
         });
     }
@@ -204,6 +216,22 @@ public class FocusRepository {
             }
             mainHandler.post(callback::onComplete);
         });
+    }
+
+    private Map<String, FocusStatsSnapshot.DailyFocusChartItem> createRecentChartBase() {
+        Map<String, FocusStatsSnapshot.DailyFocusChartItem> result = new LinkedHashMap<>();
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.add(Calendar.DAY_OF_YEAR, -6);
+        for (int i = 0; i < 7; i++) {
+            String label = DurationFormatter.formatDate(calendar.getTimeInMillis());
+            result.put(label, new FocusStatsSnapshot.DailyFocusChartItem(label, 0L, 0L, 0L));
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+        }
+        return result;
     }
 
     private List<FocusStatsSnapshot.StatItem> toSortedStatItems(Map<String, Long> values) {
