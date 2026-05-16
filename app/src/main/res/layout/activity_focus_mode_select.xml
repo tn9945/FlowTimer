@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/flow_ivory">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="집중 방식 선택" android:textColor="@color/flow_text_primary" android:textSize="28sp" android:textStyle="bold"/>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="집중 중 휴대폰 사용 제한 방식을 선택하십시오." android:textColor="@color/flow_text_hint" android:textSize="15sp"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:background="@drawable/bg_summary_card" android:orientation="vertical" android:padding="18dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="상호작용 금지 모드" android:textColor="@color/flow_text_primary" android:textSize="20sp" android:textStyle="bold"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="타이머 전용 화면을 표시하고 뒤로가기 및 화면 이탈을 제한합니다. 앱 사용 기록 통계는 수집하지 않습니다." android:textColor="@color/flow_text_hint" android:textSize="14sp"/>
+            <Button android:id="@+id/btnStrictMode" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="16dp" android:background="@drawable/bg_button_red" android:backgroundTint="@null" android:text="상호작용 금지 모드로 시작" android:textAllCaps="false" android:textColor="@color/white" android:textSize="16sp" android:textStyle="bold"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:background="@drawable/bg_summary_card" android:orientation="vertical" android:padding="18dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="상호작용 허용 모드" android:textColor="@color/flow_text_primary" android:textSize="20sp" android:textStyle="bold"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="기존 방식처럼 타이머를 진행하고 앱 사용 기록을 분석합니다." android:textColor="@color/flow_text_hint" android:textSize="14sp"/>
+            <Button android:id="@+id/btnFreeMode" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="16dp" android:background="@drawable/bg_button_focus" android:backgroundTint="@color/flow_button_focus" android:text="상호작용 허용 모드로 시작" android:textAllCaps="false" android:textColor="@color/white" android:textSize="16sp" android:textStyle="bold"/>
+        </LinearLayout>
+        <Button android:id="@+id/btnCancelFocusMode" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="18dp" android:background="@drawable/bg_button_neutral" android:backgroundTint="@color/flow_button_neutral" android:text="취소" android:textAllCaps="false" android:textColor="@color/white" android:textSize="16sp" android:textStyle="bold"/>
+    </LinearLayout>
+</ScrollView>
