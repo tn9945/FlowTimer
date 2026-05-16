@@ -4,6 +4,6 @@
         <TextView android:id="@+id/tvDetailTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="상세 통계" android:textColor="@color/flow_text_primary" android:textSize="28sp" android:textStyle="bold"/>
         <LinearLayout android:id="@+id/layoutDetailItems" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:background="@drawable/bg_card" android:orientation="vertical" android:padding="8dp"/>
         <Button android:id="@+id/btnGoStats" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="24dp" android:background="@drawable/bg_button_stats" android:backgroundTint="@color/flow_button_stats" android:text="통계 화면으로 이동" android:textColor="@color/white" android:textAllCaps="false"/>
-        <Button android:id="@+id/btnGoMain" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="12dp" android:background="@drawable/bg_button_main" android:backgroundTint="@color/flow_button_main" android:text="메인 화면으로 이동" android:textColor="@color/flow_button_main_text" android:textAllCaps="false"/>
+        <Button android:id="@+id/btnGoMain" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="12dp" android:background="@drawable/bg_button_red" android:backgroundTint="@color/flow_button_danger" android:text="메인 화면으로 이동" android:textColor="@color/white" android:textAllCaps="false"/>
     </LinearLayout>
 </ScrollView>
