@@ -26,6 +26,25 @@ public class FocusStatsSnapshot {
         public String getPackageName() { return packageName; }
     }
 
+    public static class DailyFocusChartItem {
+        private final String label;
+        private final long totalDurationMillis;
+        private final long effectiveFocusDurationMillis;
+        private final long distractionDurationMillis;
+
+        public DailyFocusChartItem(String label, long totalDurationMillis, long effectiveFocusDurationMillis, long distractionDurationMillis) {
+            this.label = label;
+            this.totalDurationMillis = totalDurationMillis;
+            this.effectiveFocusDurationMillis = effectiveFocusDurationMillis;
+            this.distractionDurationMillis = distractionDurationMillis;
+        }
+
+        public String getLabel() { return label; }
+        public long getTotalDurationMillis() { return totalDurationMillis; }
+        public long getEffectiveFocusDurationMillis() { return effectiveFocusDurationMillis; }
+        public long getDistractionDurationMillis() { return distractionDurationMillis; }
+    }
+
     private final long totalFocusDurationMillis;
     private final long totalBreakDurationMillis;
     private final long totalStudyDurationMillis;
@@ -37,6 +56,7 @@ public class FocusStatsSnapshot {
     private final List<StatItem> monthlyItems;
     private final List<StatItem> hourlyItems;
     private final List<StatItem> appItems;
+    private final List<DailyFocusChartItem> recentDailyChartItems;
 
     public FocusStatsSnapshot(long totalFocusDurationMillis,
                               long totalBreakDurationMillis,
@@ -48,7 +68,8 @@ public class FocusStatsSnapshot {
                               List<StatItem> weeklyItems,
                               List<StatItem> monthlyItems,
                               List<StatItem> hourlyItems,
-                              List<StatItem> appItems) {
+                              List<StatItem> appItems,
+                              List<DailyFocusChartItem> recentDailyChartItems) {
         this.totalFocusDurationMillis = totalFocusDurationMillis;
         this.totalBreakDurationMillis = totalBreakDurationMillis;
         this.totalStudyDurationMillis = totalStudyDurationMillis;
@@ -60,6 +81,7 @@ public class FocusStatsSnapshot {
         this.monthlyItems = new ArrayList<>(monthlyItems);
         this.hourlyItems = new ArrayList<>(hourlyItems);
         this.appItems = new ArrayList<>(appItems);
+        this.recentDailyChartItems = new ArrayList<>(recentDailyChartItems);
     }
 
     public long getTotalFocusDurationMillis() { return totalFocusDurationMillis; }
@@ -73,4 +95,5 @@ public class FocusStatsSnapshot {
     public List<StatItem> getMonthlyItems() { return Collections.unmodifiableList(monthlyItems); }
     public List<StatItem> getHourlyItems() { return Collections.unmodifiableList(hourlyItems); }
     public List<StatItem> getAppItems() { return Collections.unmodifiableList(appItems); }
+    public List<DailyFocusChartItem> getRecentDailyChartItems() { return Collections.unmodifiableList(recentDailyChartItems); }
 }
