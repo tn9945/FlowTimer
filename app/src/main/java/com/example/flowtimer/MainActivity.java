@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
     private void registerPermissionLaunchers() {
         notificationPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
             if (!isGranted) {
-                Toast.makeText(this, "알림 권한이 거부되어 상호작용 금지 모드 알림이 표시되지 않을 수 있습니다.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "알림 권한이 거부되어 집중 타이머 알림이 표시되지 않을 수 있습니다.", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(this, FocusModeSelectActivity.class));
             }
         });
-        btnResetFocus.setOnClickListener(v -> cancelFocusSession());
+        btnResetFocus.setVisibility(View.GONE);
         btnStats.setOnClickListener(v -> startActivity(new Intent(this, FocusStatsActivity.class)));
         btnGameStart.setOnClickListener(v -> {
             String userId = sessionManager.getUserIdentifier();
@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         }
         new AlertDialog.Builder(this)
                 .setTitle("알림 권한 안내")
-                .setMessage("상호작용 금지 모드 실행 상태를 알림으로 표시하려면 알림 권한이 필요합니다.\n\n알림 권한이 꺼져 있으면 집중 유지 알림이 표시되지 않을 수 있습니다.\n\n권한 요청 창에서 허용을 선택해 주십시오.")
+                .setMessage("집중 타이머를 알림과 잠금 화면에 표시하려면 알림 권한이 필요합니다.\n\n권한 요청 창에서 허용을 선택해 주십시오.")
                 .setPositiveButton("권한 요청", (dialog, which) -> notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS))
                 .setNegativeButton("나중에", null)
                 .show();
@@ -208,12 +208,16 @@ public class MainActivity extends AppCompatActivity {
         timerHandler.removeCallbacks(timerRunnable);
         if (isCurrentUserSessionRunning()) {
             btnStartFocus.setText("집중 종료");
-            btnResetFocus.setVisibility(View.VISIBLE);
+            btnStartFocus.setBackgroundResource(R.drawable.bg_button_red);
+            btnStartFocus.setBackgroundTintList(null);
+            btnResetFocus.setVisibility(View.GONE);
             long startTimeMillis = activeFocusSessionStore.getStartTimeMillis();
             tvTimer.setText(DurationFormatter.formatClock(System.currentTimeMillis() - startTimeMillis));
             timerHandler.post(timerRunnable);
         } else {
             btnStartFocus.setText("집중 시작");
+            btnStartFocus.setBackgroundResource(R.drawable.bg_button_focus);
+            btnStartFocus.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.flow_button_focus));
             btnResetFocus.setVisibility(View.GONE);
             tvTimer.setText("00:00");
         }
@@ -225,20 +229,36 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         activeFocusSessionStore.saveRunningSession(sessionManager.getUserIdentifier(), System.currentTimeMillis());
-        Toast.makeText(this, "상호작용 허용 모드 집중 기록을 시작합니다.", Toast.LENGTH_SHORT).show();
+        startConscienceFocusService();
+        Toast.makeText(this, "양심 집중 모드를 시작합니다.", Toast.LENGTH_SHORT).show();
         syncFocusSessionUi();
+    }
+
+    private void startConscienceFocusService() {
+        Intent intent = new Intent(this, ConscienceFocusService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
+    }
+
+    private void stopConscienceFocusService() {
+        stopService(new Intent(this, ConscienceFocusService.class));
     }
 
     private void stopFocusSession() {
         long startTimeMillis = activeFocusSessionStore.getStartTimeMillis();
         if (startTimeMillis <= 0L) {
             activeFocusSessionStore.clear();
+            stopConscienceFocusService();
             syncFocusSessionUi();
             return;
         }
 
         long endTimeMillis = System.currentTimeMillis();
         activeFocusSessionStore.clear();
+        stopConscienceFocusService();
         syncFocusSessionUi();
         setMainActionEnabled(false);
         Toast.makeText(this, "집중 기록을 분석하고 있습니다.", Toast.LENGTH_SHORT).show();
@@ -256,20 +276,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void cancelFocusSession() {
-        if (!isCurrentUserSessionRunning()) {
-            tvTimer.setText("00:00");
-            btnResetFocus.setVisibility(View.GONE);
-            return;
-        }
-        activeFocusSessionStore.clear();
-        syncFocusSessionUi();
-        Toast.makeText(this, "진행 중인 집중 기록이 초기화되었습니다.", Toast.LENGTH_SHORT).show();
-    }
-
     private void setMainActionEnabled(boolean enabled) {
         btnStartFocus.setEnabled(enabled);
-        btnResetFocus.setEnabled(enabled);
+        btnResetFocus.setEnabled(false);
         btnStats.setEnabled(enabled);
         btnGameStart.setEnabled(enabled);
         btnLogout.setEnabled(enabled);
@@ -280,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
     private void showUsageAccessDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("사용 기록 접근 권한 안내")
-                .setMessage("상호작용 허용 모드에서 앱별 사용 기록 통계를 생성하려면 사용 기록 접근 권한이 필요합니다.\n\n중요: 이 권한은 Android 정책상 FlowTimer에서 자동으로 허용할 수 없습니다.\n\n설정 화면에서 FlowTimer를 선택한 뒤 사용 기록 접근을 허용해 주십시오.")
+                .setMessage("양심 집중 모드에서 앱 사용 기록을 분석하려면 사용 기록 접근 권한이 필요합니다.\n\n설정 화면에서 FlowTimer를 선택한 뒤 허용해 주십시오.")
                 .setPositiveButton("설정 화면으로 이동", (dialog, which) -> UsageAccessHelper.openSettings(this))
                 .setNegativeButton("취소", null)
                 .show();
