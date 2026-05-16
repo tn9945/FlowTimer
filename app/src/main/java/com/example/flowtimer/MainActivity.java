@@ -34,6 +34,8 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String EXTRA_STOP_CONSCIENCE_FOCUS = "extra_stop_conscience_focus";
+
     private SessionManager sessionManager;
     private FocusRepository focusRepository;
     private ActiveFocusSessionStore activeFocusSessionStore;
@@ -58,8 +60,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             if (isCurrentUserSessionRunning()) {
-                long startTimeMillis = activeFocusSessionStore.getStartTimeMillis();
-                tvTimer.setText(DurationFormatter.formatClock(System.currentTimeMillis() - startTimeMillis));
+                tvTimer.setText(DurationFormatter.formatClock(activeFocusSessionStore.getElapsedDurationMillis()));
                 timerHandler.postDelayed(this, 1000L);
             }
         }
@@ -152,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(this, FocusModeSelectActivity.class));
             }
         });
-        btnResetFocus.setVisibility(View.GONE);
+        btnResetFocus.setOnClickListener(v -> togglePauseFocusSession());
         btnStats.setOnClickListener(v -> startActivity(new Intent(this, FocusStatsActivity.class)));
         btnGameStart.setOnClickListener(v -> {
             String userId = sessionManager.getUserIdentifier();
@@ -192,6 +193,13 @@ public class MainActivity extends AppCompatActivity {
         if (intent == null) {
             return;
         }
+        if (intent.getBooleanExtra(EXTRA_STOP_CONSCIENCE_FOCUS, false)) {
+            intent.removeExtra(EXTRA_STOP_CONSCIENCE_FOCUS);
+            if (isCurrentUserSessionRunning()) {
+                stopFocusSession();
+            }
+            return;
+        }
         if (intent.getBooleanExtra(FocusModeSelectActivity.EXTRA_START_FREE_FOCUS, false)) {
             intent.removeExtra(FocusModeSelectActivity.EXTRA_START_FREE_FOCUS);
             if (!isCurrentUserSessionRunning()) {
@@ -210,10 +218,13 @@ public class MainActivity extends AppCompatActivity {
             btnStartFocus.setText("집중 종료");
             btnStartFocus.setBackgroundResource(R.drawable.bg_button_red);
             btnStartFocus.setBackgroundTintList(null);
-            btnResetFocus.setVisibility(View.GONE);
-            long startTimeMillis = activeFocusSessionStore.getStartTimeMillis();
-            tvTimer.setText(DurationFormatter.formatClock(System.currentTimeMillis() - startTimeMillis));
-            timerHandler.post(timerRunnable);
+            btnResetFocus.setVisibility(View.VISIBLE);
+            btnResetFocus.setText(activeFocusSessionStore.isPaused() ? "재개" : "일시정지");
+            btnResetFocus.setEnabled(true);
+            tvTimer.setText(DurationFormatter.formatClock(activeFocusSessionStore.getElapsedDurationMillis()));
+            if (!activeFocusSessionStore.isPaused()) {
+                timerHandler.post(timerRunnable);
+            }
         } else {
             btnStartFocus.setText("집중 시작");
             btnStartFocus.setBackgroundResource(R.drawable.bg_button_focus);
@@ -231,6 +242,21 @@ public class MainActivity extends AppCompatActivity {
         activeFocusSessionStore.saveRunningSession(sessionManager.getUserIdentifier(), System.currentTimeMillis());
         startConscienceFocusService();
         Toast.makeText(this, "양심 집중 모드를 시작합니다.", Toast.LENGTH_SHORT).show();
+        syncFocusSessionUi();
+    }
+
+    private void togglePauseFocusSession() {
+        if (!isCurrentUserSessionRunning()) {
+            return;
+        }
+        if (activeFocusSessionStore.isPaused()) {
+            activeFocusSessionStore.resume();
+            Toast.makeText(this, "집중 타이머를 다시 시작하였습니다.", Toast.LENGTH_SHORT).show();
+        } else {
+            activeFocusSessionStore.pause();
+            Toast.makeText(this, "집중 타이머를 일시정지하였습니다.", Toast.LENGTH_SHORT).show();
+        }
+        startConscienceFocusService();
         syncFocusSessionUi();
     }
 
@@ -278,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setMainActionEnabled(boolean enabled) {
         btnStartFocus.setEnabled(enabled);
-        btnResetFocus.setEnabled(false);
+        btnResetFocus.setEnabled(enabled && isCurrentUserSessionRunning());
         btnStats.setEnabled(enabled);
         btnGameStart.setEnabled(enabled);
         btnLogout.setEnabled(enabled);
@@ -314,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void openLoginAndFinish() {
         Intent intent = new Intent(this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
