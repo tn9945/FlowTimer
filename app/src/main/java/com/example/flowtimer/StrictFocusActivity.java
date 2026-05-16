@@ -5,6 +5,7 @@ import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -53,6 +54,7 @@ public class StrictFocusActivity extends AppCompatActivity {
         bindViews();
         prepareBackBlock();
         restoreOrStartSession();
+        startFocusGuardService();
         bindActions();
     }
 
@@ -117,6 +119,19 @@ public class StrictFocusActivity extends AppCompatActivity {
                     .putInt(KEY_ESCAPE_COUNT, 0)
                     .apply();
         }
+    }
+
+    private void startFocusGuardService() {
+        Intent intent = new Intent(this, FocusGuardService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
+    }
+
+    private void stopFocusGuardService() {
+        stopService(new Intent(this, FocusGuardService.class));
     }
 
     private void bindActions() {
@@ -189,6 +204,7 @@ public class StrictFocusActivity extends AppCompatActivity {
 
     private void finishStrictFocus(String message) {
         getSharedPreferences(PREF_NAME, MODE_PRIVATE).edit().clear().apply();
+        stopFocusGuardService();
         timerHandler.removeCallbacks(timerRunnable);
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, MainActivity.class);
