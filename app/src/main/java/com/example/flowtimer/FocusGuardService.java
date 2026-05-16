@@ -28,13 +28,14 @@ public class FocusGuardService extends Service {
     private static final String STRICT_SESSION_PREF_NAME = "strict_focus_session";
     private static final String KEY_RUNNING = "running";
     private static final String KEY_ESCAPE_COUNT = "escape_count";
+    private static final String KEY_MODE_TYPE = "mode_type";
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable guardRunnable = new Runnable() {
         @Override
         public void run() {
             guardStrictFocusScreen();
-            handler.postDelayed(this, 1500L);
+            handler.postDelayed(this, 1000L);
         }
     };
 
@@ -108,9 +109,17 @@ public class FocusGuardService extends Service {
         if (packageName == null) {
             return false;
         }
+        if (packageName.equals(getPackageName())) {
+            return true;
+        }
+        String modeType = getSharedPreferences(STRICT_SESSION_PREF_NAME, MODE_PRIVATE)
+                .getString(KEY_MODE_TYPE, FocusModeSelectActivity.STRICT_MODE_FULL_BLOCK);
+        if (!FocusModeSelectActivity.STRICT_MODE_ALLOWED_APPS.equals(modeType)) {
+            return false;
+        }
         Set<String> allowedPackages = getSharedPreferences(AllowedAppsActivity.PREF_NAME, MODE_PRIVATE)
                 .getStringSet(AllowedAppsActivity.KEY_ALLOWED_PACKAGES, new HashSet<>());
-        return packageName.equals(getPackageName()) || allowedPackages.contains(packageName);
+        return allowedPackages.contains(packageName);
     }
 
     private void increaseEscapeCount() {
