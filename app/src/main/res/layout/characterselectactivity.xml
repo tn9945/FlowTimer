@@ -6,5 +6,5 @@
         <ImageView android:id="@+id/imgDog" android:layout_width="100dp" android:layout_height="100dp" android:layout_margin="12dp" android:src="@drawable/dog"/>
         <ImageView android:id="@+id/imgBear" android:layout_width="100dp" android:layout_height="100dp" android:layout_margin="12dp" android:src="@drawable/bear"/>
     </LinearLayout>
-    <Button android:id="@+id/btnGoMain" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="28dp" android:text="메인 화면으로 이동" android:background="@drawable/bg_button_main" android:backgroundTint="@color/flow_button_main" android:textColor="@color/flow_button_main_text" android:textAllCaps="false"/>
+    <Button android:id="@+id/btnGoMain" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="28dp" android:text="메인 화면으로 이동" android:background="@drawable/bg_button_red" android:backgroundTint="@color/flow_button_danger" android:textColor="@color/white" android:textAllCaps="false"/>
 </LinearLayout>
