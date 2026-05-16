@@ -9,8 +9,12 @@ import androidx.appcompat.app.AppCompatActivity;
 public class FocusModeSelectActivity extends AppCompatActivity {
 
     public static final String EXTRA_START_FREE_FOCUS = "extra_start_free_focus";
+    public static final String EXTRA_STRICT_MODE_TYPE = "extra_strict_mode_type";
+    public static final String STRICT_MODE_FULL_BLOCK = "full_block";
+    public static final String STRICT_MODE_ALLOWED_APPS = "allowed_apps";
 
-    private Button btnStrictMode;
+    private Button btnFullBlockMode;
+    private Button btnAllowedAppsMode;
     private Button btnFreeMode;
     private Button btnCancelFocusMode;
 
@@ -24,14 +28,22 @@ public class FocusModeSelectActivity extends AppCompatActivity {
     }
 
     private void bindViews() {
-        btnStrictMode = findViewById(R.id.btnStrictMode);
+        btnFullBlockMode = findViewById(R.id.btnFullBlockMode);
+        btnAllowedAppsMode = findViewById(R.id.btnAllowedAppsMode);
         btnFreeMode = findViewById(R.id.btnFreeMode);
         btnCancelFocusMode = findViewById(R.id.btnCancelFocusMode);
     }
 
     private void bindActions() {
-        btnStrictMode.setOnClickListener(v -> {
+        btnFullBlockMode.setOnClickListener(v -> {
+            Intent intent = new Intent(this, StrictFocusActivity.class);
+            intent.putExtra(EXTRA_STRICT_MODE_TYPE, STRICT_MODE_FULL_BLOCK);
+            startActivity(intent);
+            finish();
+        });
+        btnAllowedAppsMode.setOnClickListener(v -> {
             Intent intent = new Intent(this, AllowedAppsActivity.class);
+            intent.putExtra(EXTRA_STRICT_MODE_TYPE, STRICT_MODE_ALLOWED_APPS);
             startActivity(intent);
             finish();
         });
