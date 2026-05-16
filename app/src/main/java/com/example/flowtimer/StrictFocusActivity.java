@@ -12,7 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
@@ -30,7 +29,6 @@ import java.util.Set;
 
 public class StrictFocusActivity extends AppCompatActivity {
 
-    private static final long STRICT_FOCUS_DURATION_MILLIS = 25L * 60L * 1000L;
     private static final String PREF_NAME = "strict_focus_session";
     private static final String KEY_START_TIME = "start_time";
     private static final String KEY_RUNNING = "running";
@@ -40,13 +38,12 @@ public class StrictFocusActivity extends AppCompatActivity {
     private TextView tvStrictModeTitle;
     private TextView tvStrictTimer;
     private TextView tvStrictGuide;
-    private TextView tvStrictStatus;
     private Button btnOpenAllowedApps;
     private Button btnFinishStrictFocus;
     private final Handler timerHandler = new Handler(Looper.getMainLooper());
     private final Handler returnHandler = new Handler(Looper.getMainLooper());
     private long startTimeMillis;
-    private String strictModeType = FocusModeSelectActivity.STRICT_MODE_FULL_BLOCK;
+    private String strictModeType = FocusModeSelectActivity.STRICT_MODE_ALLOWED_APPS;
 
     private final Runnable timerRunnable = new Runnable() {
         @Override
@@ -125,7 +122,6 @@ public class StrictFocusActivity extends AppCompatActivity {
         tvStrictModeTitle = findViewById(R.id.tvStrictModeTitle);
         tvStrictTimer = findViewById(R.id.tvStrictTimer);
         tvStrictGuide = findViewById(R.id.tvStrictGuide);
-        tvStrictStatus = findViewById(R.id.tvStrictStatus);
         btnOpenAllowedApps = findViewById(R.id.btnOpenAllowedApps);
         btnFinishStrictFocus = findViewById(R.id.btnFinishStrictFocus);
     }
@@ -134,7 +130,6 @@ public class StrictFocusActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                Toast.makeText(StrictFocusActivity.this, "상호작용 금지 모드에서는 뒤로가기를 사용할 수 없습니다.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -144,11 +139,7 @@ public class StrictFocusActivity extends AppCompatActivity {
         boolean running = preferences.getBoolean(KEY_RUNNING, false);
         long savedStartTime = preferences.getLong(KEY_START_TIME, 0L);
         String requestedMode = getIntent().getStringExtra(FocusModeSelectActivity.EXTRA_STRICT_MODE_TYPE);
-        if (requestedMode != null) {
-            strictModeType = requestedMode;
-        } else {
-            strictModeType = preferences.getString(KEY_MODE_TYPE, FocusModeSelectActivity.STRICT_MODE_FULL_BLOCK);
-        }
+        strictModeType = requestedMode != null ? requestedMode : preferences.getString(KEY_MODE_TYPE, FocusModeSelectActivity.STRICT_MODE_ALLOWED_APPS);
         if (running && savedStartTime > 0L) {
             startTimeMillis = savedStartTime;
         } else {
@@ -163,19 +154,9 @@ public class StrictFocusActivity extends AppCompatActivity {
     }
 
     private void bindModeUi() {
-        if (isAllowedAppsMode()) {
-            tvStrictModeTitle.setText("허용 앱 제한 집중 중");
-            tvStrictGuide.setText("허용 앱 열기 버튼으로 선택한 앱만 사용할 수 있습니다.\n\n허용되지 않은 앱으로 이동하면 타이머 화면으로 복귀합니다.");
-            btnOpenAllowedApps.setVisibility(View.VISIBLE);
-        } else {
-            tvStrictModeTitle.setText("완전 차단 집중 중");
-            tvStrictGuide.setText("집중 중에는 타이머 화면만 유지합니다.\n\n전화와 메시지를 제외한 화면 이동은 집중 방해 시도로 기록됩니다.");
-            btnOpenAllowedApps.setVisibility(View.GONE);
-        }
-    }
-
-    private boolean isAllowedAppsMode() {
-        return FocusModeSelectActivity.STRICT_MODE_ALLOWED_APPS.equals(strictModeType);
+        tvStrictModeTitle.setText("강제 집중 모드");
+        tvStrictGuide.setText("선택한 앱만 예외적으로 사용할 수 있습니다.");
+        btnOpenAllowedApps.setText("허용 앱 열기");
     }
 
     private void startFocusGuardService() {
@@ -193,20 +174,12 @@ public class StrictFocusActivity extends AppCompatActivity {
 
     private void bindActions() {
         btnOpenAllowedApps.setOnClickListener(v -> showAllowedAppLauncherDialog());
-        btnFinishStrictFocus.setOnClickListener(v -> finishStrictFocus("상호작용 금지 모드 집중이 종료되었습니다."));
+        btnFinishStrictFocus.setOnClickListener(v -> finishStrictFocus("강제 집중 모드가 종료되었습니다."));
     }
 
     private void updateTimer() {
-        long elapsed = System.currentTimeMillis() - startTimeMillis;
-        long remain = STRICT_FOCUS_DURATION_MILLIS - elapsed;
-        if (remain <= 0L) {
-            tvStrictTimer.setText("00:00");
-            finishStrictFocus("상호작용 금지 모드 집중 시간이 완료되었습니다.");
-            return;
-        }
-        tvStrictTimer.setText(DurationFormatter.formatClock(remain));
-        int escapeCount = getSharedPreferences(PREF_NAME, MODE_PRIVATE).getInt(KEY_ESCAPE_COUNT, 0);
-        tvStrictStatus.setText("허용되지 않은 화면 이탈 시도 " + escapeCount + "회가 기록되었습니다.");
+        long elapsed = Math.max(0L, System.currentTimeMillis() - startTimeMillis);
+        tvStrictTimer.setText(DurationFormatter.formatClock(elapsed));
     }
 
     private void showAllowedAppLauncherDialog() {
@@ -317,13 +290,7 @@ public class StrictFocusActivity extends AppCompatActivity {
         }
         Set<String> allowedPackages = getSharedPreferences(AllowedAppsActivity.PREF_NAME, MODE_PRIVATE)
                 .getStringSet(AllowedAppsActivity.KEY_ALLOWED_PACKAGES, new HashSet<>());
-        if (packageName.equals(getPackageName())) {
-            return true;
-        }
-        if (!isAllowedAppsMode()) {
-            return false;
-        }
-        return allowedPackages.contains(packageName);
+        return packageName.equals(getPackageName()) || allowedPackages.contains(packageName);
     }
 
     private void increaseEscapeCount() {
