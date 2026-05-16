@@ -31,7 +31,7 @@ public class FocusModeSelectActivity extends AppCompatActivity {
 
     private void bindActions() {
         btnStrictMode.setOnClickListener(v -> {
-            Intent intent = new Intent(this, StrictFocusActivity.class);
+            Intent intent = new Intent(this, AllowedAppsActivity.class);
             startActivity(intent);
             finish();
         });
