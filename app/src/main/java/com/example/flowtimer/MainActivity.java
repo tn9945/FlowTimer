@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         }
         new AlertDialog.Builder(this)
                 .setTitle("알림 권한 안내")
-                .setMessage("상호작용 금지 모드 실행 상태와 집중 유지 알림을 표시하려면 알림 권한이 필요합니다. 권한 요청 창에서 허용을 선택해 주십시오.")
+                .setMessage("상호작용 금지 모드 실행 상태를 알림으로 표시하려면 알림 권한이 필요합니다.\n\n알림 권한이 꺼져 있으면 집중 유지 알림이 표시되지 않을 수 있습니다.\n\n권한 요청 창에서 허용을 선택해 주십시오.")
                 .setPositiveButton("권한 요청", (dialog, which) -> notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS))
                 .setNegativeButton("나중에", null)
                 .show();
@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
     private void showUsageAccessDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("사용 기록 접근 권한 안내")
-                .setMessage("상호작용 허용 모드에서 앱별 사용 기록 통계를 생성하려면 Android 시스템의 사용 기록 접근 권한이 필요합니다. 이 권한은 Android 정책상 앱에서 자동으로 허용할 수 없으며, 설정 화면에서 사용자가 직접 FlowTimer를 허용해야 합니다. 설정 화면에서 FlowTimer를 선택한 뒤 사용 기록 접근을 허용해 주십시오.")
+                .setMessage("상호작용 허용 모드에서 앱별 사용 기록 통계를 생성하려면 사용 기록 접근 권한이 필요합니다.\n\n중요: 이 권한은 Android 정책상 FlowTimer에서 자동으로 허용할 수 없습니다.\n\n설정 화면에서 FlowTimer를 선택한 뒤 사용 기록 접근을 허용해 주십시오.")
                 .setPositiveButton("설정 화면으로 이동", (dialog, which) -> UsageAccessHelper.openSettings(this))
                 .setNegativeButton("취소", null)
                 .show();
