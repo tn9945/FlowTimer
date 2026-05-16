@@ -10,6 +10,8 @@ import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -38,7 +40,7 @@ public class FocusGuardService extends Service {
         public void run() {
             guardStrictFocusScreen();
             updateNotification();
-            handler.postDelayed(this, 1000L);
+            handler.postDelayed(this, 700L);
         }
     };
 
@@ -78,9 +80,24 @@ public class FocusGuardService extends Service {
             return;
         }
         increaseEscapeCount();
-        Intent intent = new Intent(this, StrictFocusActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        openBlockedScreen(packageName);
+    }
+
+    private void openBlockedScreen(String packageName) {
+        Intent intent = new Intent(this, BlockedAppActivity.class);
+        intent.putExtra(BlockedAppActivity.EXTRA_BLOCKED_APP_NAME, getAppName(packageName));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
+    }
+
+    private String getAppName(String packageName) {
+        PackageManager packageManager = getPackageManager();
+        try {
+            ApplicationInfo appInfo = packageManager.getApplicationInfo(packageName, 0);
+            return packageManager.getApplicationLabel(appInfo).toString();
+        } catch (PackageManager.NameNotFoundException e) {
+            return "이 앱";
+        }
     }
 
     private void updateNotification() {
@@ -122,6 +139,9 @@ public class FocusGuardService extends Service {
         if (packageName.equals(getPackageName())) {
             return true;
         }
+        if (packageName.equals(BlockedAppActivity.class.getPackage().getName())) {
+            return true;
+        }
         Set<String> allowedPackages = getSharedPreferences(AllowedAppsActivity.PREF_NAME, MODE_PRIVATE)
                 .getStringSet(AllowedAppsActivity.KEY_ALLOWED_PACKAGES, new HashSet<>());
         return allowedPackages.contains(packageName);
@@ -141,7 +161,7 @@ public class FocusGuardService extends Service {
         long startTimeMillis = getSharedPreferences(STRICT_SESSION_PREF_NAME, MODE_PRIVATE).getLong(KEY_START_TIME, 0L);
         long elapsed = startTimeMillis > 0L ? Math.max(0L, System.currentTimeMillis() - startTimeMillis) : 0L;
 
-        return new NotificationCompat.Builder(this, CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.flow_timer_app_icon_transparent)
                 .setContentTitle("강제 집중 모드 실행 중")
                 .setContentText("집중 시간 " + DurationFormatter.formatClock(elapsed))
@@ -150,8 +170,15 @@ public class FocusGuardService extends Service {
                 .setSilent(true)
                 .setOnlyAlertOnce(true)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .build();
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+        builder.addAction(0, "집중 종료", createActionPendingIntent(FocusNotificationActionReceiver.ACTION_STOP_STRICT, 2502));
+        return builder.build();
+    }
+
+    private PendingIntent createActionPendingIntent(String action, int requestCode) {
+        Intent intent = new Intent(this, FocusNotificationActionReceiver.class);
+        intent.setAction(action);
+        return PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
     private void createNotificationChannel() {
