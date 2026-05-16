@@ -41,6 +41,10 @@ public class ConscienceFocusService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (!activeFocusSessionStore.isRunning()) {
+            stopSelf();
+            return START_NOT_STICKY;
+        }
         startForeground(NOTIFICATION_ID, createNotification());
         handler.removeCallbacks(timerRunnable);
         handler.post(timerRunnable);
@@ -60,6 +64,10 @@ public class ConscienceFocusService extends Service {
     }
 
     private void updateNotification() {
+        if (!activeFocusSessionStore.isRunning()) {
+            stopSelf();
+            return;
+        }
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
         if (notificationManager != null) {
             notificationManager.notify(NOTIFICATION_ID, createNotification());
@@ -71,19 +79,28 @@ public class ConscienceFocusService extends Service {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        long startTimeMillis = activeFocusSessionStore.getStartTimeMillis();
-        long elapsed = startTimeMillis > 0L ? Math.max(0L, System.currentTimeMillis() - startTimeMillis) : 0L;
-        return new NotificationCompat.Builder(this, CHANNEL_ID)
+        boolean paused = activeFocusSessionStore.isPaused();
+        long elapsed = activeFocusSessionStore.getElapsedDurationMillis();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.flow_timer_app_icon_transparent)
-                .setContentTitle("양심 집중 모드 실행 중")
+                .setContentTitle(paused ? "양심 집중 모드 일시정지 중" : "양심 집중 모드 실행 중")
                 .setContentText("집중 시간 " + DurationFormatter.formatClock(elapsed))
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setSilent(true)
                 .setOnlyAlertOnce(true)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .build();
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+
+        builder.addAction(0, paused ? "재개" : "일시정지", createActionPendingIntent(paused ? FocusNotificationActionReceiver.ACTION_RESUME_CONSCIENCE : FocusNotificationActionReceiver.ACTION_PAUSE_CONSCIENCE, 2001));
+        builder.addAction(0, "집중 종료", createActionPendingIntent(FocusNotificationActionReceiver.ACTION_STOP_CONSCIENCE, 2002));
+        return builder.build();
+    }
+
+    private PendingIntent createActionPendingIntent(String action, int requestCode) {
+        Intent intent = new Intent(this, FocusNotificationActionReceiver.class);
+        intent.setAction(action);
+        return PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
     private void createNotificationChannel() {
