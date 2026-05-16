@@ -18,6 +18,10 @@
         android:theme="@style/Theme.FlowTimer">
 
         <receiver
+            android:name=".FocusNotificationActionReceiver"
+            android:enabled="true"
+            android:exported="false" />
+        <receiver
             android:name=".BootReceiver"
             android:enabled="true"
             android:exported="false">
@@ -35,6 +39,9 @@
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
+        <activity
+            android:name=".BlockedAppActivity"
+            android:exported="false" />
         <activity
             android:name=".AllowedAppsActivity"
             android:exported="false" />
