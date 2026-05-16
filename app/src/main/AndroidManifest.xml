@@ -14,6 +14,9 @@
         android:theme="@style/Theme.FlowTimer">
 
         <activity
+            android:name=".AllowedAppsActivity"
+            android:exported="false" />
+        <activity
             android:name=".StrictFocusActivity"
             android:exported="false" />
         <activity
