@@ -7,8 +7,10 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Telephony;
 import android.telecom.TelecomManager;
+import android.view.Gravity;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -73,7 +75,7 @@ public class AllowedAppsActivity extends AppCompatActivity {
             if (builder.length() > 0) {
                 builder.append("\n");
             }
-            builder.append(appName).append(" (").append(packageName).append(")");
+            builder.append(appName);
         }
         tvDefaultAllowedApps.setText(builder.toString());
     }
@@ -91,17 +93,33 @@ public class AllowedAppsActivity extends AppCompatActivity {
         Collections.sort(launchableApps, Comparator.comparing(app -> getAppName(packageManager, app.packageName).toLowerCase()));
         Set<String> savedPackages = getSharedPreferences(PREF_NAME, MODE_PRIVATE).getStringSet(KEY_ALLOWED_PACKAGES, new HashSet<>());
         for (ApplicationInfo app : launchableApps) {
-            CheckBox checkBox = new CheckBox(this);
-            String appName = getAppName(packageManager, app.packageName);
-            checkBox.setText(appName + "\n" + app.packageName);
-            checkBox.setTextColor(getColor(R.color.flow_text_primary));
-            checkBox.setTextSize(14f);
-            checkBox.setPadding(0, 14, 0, 14);
-            checkBox.setTag(app.packageName);
-            checkBox.setChecked(savedPackages.contains(app.packageName));
-            layoutAllowedApps.addView(checkBox, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            appCheckBoxes.add(checkBox);
+            layoutAllowedApps.addView(createAppRow(packageManager, app, savedPackages.contains(app.packageName)));
         }
+    }
+
+    private LinearLayout createAppRow(PackageManager packageManager, ApplicationInfo app, boolean checked) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(10), 0, dp(10));
+
+        ImageView iconView = new ImageView(this);
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(dp(34), dp(34));
+        iconParams.rightMargin = dp(12);
+        iconView.setLayoutParams(iconParams);
+        iconView.setImageDrawable(packageManager.getApplicationIcon(app));
+        row.addView(iconView);
+
+        CheckBox checkBox = new CheckBox(this);
+        checkBox.setText(getAppName(packageManager, app.packageName));
+        checkBox.setTextColor(getColor(R.color.flow_text_primary));
+        checkBox.setTextSize(15f);
+        checkBox.setTag(app.packageName);
+        checkBox.setChecked(checked);
+        row.addView(checkBox, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        appCheckBoxes.add(checkBox);
+        row.setOnClickListener(v -> checkBox.setChecked(!checkBox.isChecked()));
+        return row;
     }
 
     private String getAppName(PackageManager packageManager, String packageName) {
@@ -116,7 +134,7 @@ public class AllowedAppsActivity extends AppCompatActivity {
     private void bindActions() {
         btnStartStrictFocus.setOnClickListener(v -> {
             saveAllowedPackages();
-            Toast.makeText(this, "상호작용 허용 앱 설정이 저장되었습니다.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "허용 앱 설정이 저장되었습니다.", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, StrictFocusActivity.class);
             intent.putExtra(FocusModeSelectActivity.EXTRA_STRICT_MODE_TYPE, FocusModeSelectActivity.STRICT_MODE_ALLOWED_APPS);
             startActivity(intent);
@@ -138,5 +156,9 @@ public class AllowedAppsActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = getSharedPreferences(PREF_NAME, MODE_PRIVATE).edit();
         editor.putStringSet(KEY_ALLOWED_PACKAGES, selectedPackages);
         editor.apply();
+    }
+
+    private int dp(int value) {
+        return Math.round(getResources().getDisplayMetrics().density * value);
     }
 }
