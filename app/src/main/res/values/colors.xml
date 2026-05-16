@@ -12,6 +12,8 @@
     <color name="flow_line">#D8E2EC</color>
     <color name="flow_card_white">#FFFFFFFF</color>
     <color name="flow_red">#E25151</color>
+    <color name="flow_warning_light">#E98585</color>
+    <color name="flow_warning_bg">#FFF0F0</color>
 
     <color name="flow_button_main">#F8C7C7</color>
     <color name="flow_button_main_text">#FFFFFFFF</color>
