@@ -33,15 +33,14 @@ public class FocusModeSelectActivity extends AppCompatActivity {
 
     private void bindActions() {
         btnForceFocusMode.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AllowedAppsActivity.class);
-            intent.putExtra(EXTRA_STRICT_MODE_TYPE, STRICT_MODE_ALLOWED_APPS);
+            Intent intent = new Intent(this, FocusStartConfigActivity.class);
+            intent.putExtra(FocusStartConfigActivity.EXTRA_MODE, FocusStartConfigActivity.MODE_STRICT);
             startActivity(intent);
             finish();
         });
         btnConscienceFocusMode.setOnClickListener(v -> {
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra(EXTRA_START_FREE_FOCUS, true);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            Intent intent = new Intent(this, FocusStartConfigActivity.class);
+            intent.putExtra(FocusStartConfigActivity.EXTRA_MODE, FocusStartConfigActivity.MODE_CONSCIENCE);
             startActivity(intent);
             finish();
         });
