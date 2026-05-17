@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.flowtimer.focus.FocusPermissionHelper;
 import com.example.flowtimer.focus.StrictFocusPackagePolicy;
+import com.example.flowtimer.focus.StrictFocusSessionStore;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +35,7 @@ public class AllowedAppsActivity extends AppCompatActivity {
 
     private LinearLayout layoutAllowedApps;
     private TextView tvDefaultAllowedApps;
+    private RadioGroup rgTargetDuration;
     private Button btnStartStrictFocus;
     private Button btnCancelAllowedApps;
     private final List<CheckBox> appCheckBoxes = new ArrayList<>();
@@ -60,6 +63,7 @@ public class AllowedAppsActivity extends AppCompatActivity {
     private void bindViews() {
         layoutAllowedApps = findViewById(R.id.layoutAllowedApps);
         tvDefaultAllowedApps = findViewById(R.id.tvDefaultAllowedApps);
+        rgTargetDuration = findViewById(R.id.rgTargetDuration);
         btnStartStrictFocus = findViewById(R.id.btnStartStrictFocus);
         btnCancelAllowedApps = findViewById(R.id.btnCancelAllowedApps);
     }
@@ -140,6 +144,7 @@ public class AllowedAppsActivity extends AppCompatActivity {
                 return;
             }
             saveAllowedPackages();
+            new StrictFocusSessionStore(this).start(System.currentTimeMillis(), resolveTargetDurationMillis());
             Toast.makeText(this, "허용 앱 설정이 저장되었습니다.", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, StrictFocusActivity.class);
             intent.putExtra(FocusModeSelectActivity.EXTRA_STRICT_MODE_TYPE, FocusModeSelectActivity.STRICT_MODE_ALLOWED_APPS);
@@ -147,6 +152,20 @@ public class AllowedAppsActivity extends AppCompatActivity {
             finish();
         });
         btnCancelAllowedApps.setOnClickListener(v -> finish());
+    }
+
+    private long resolveTargetDurationMillis() {
+        int checkedId = rgTargetDuration.getCheckedRadioButtonId();
+        if (checkedId == R.id.rbTarget15) {
+            return 15L * 60L * 1000L;
+        }
+        if (checkedId == R.id.rbTarget45) {
+            return 45L * 60L * 1000L;
+        }
+        if (checkedId == R.id.rbTarget60) {
+            return 60L * 60L * 1000L;
+        }
+        return 25L * 60L * 1000L;
     }
 
     private void showInitialPermissionGuideIfNeeded() {
