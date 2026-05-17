@@ -10,9 +10,13 @@ import java.util.Map;
 
 public class StrictFocusSessionStore {
 
+    public static final String MODE_STOPWATCH = "stopwatch";
+    public static final String MODE_TIMER = "timer";
+
     private static final String PREF_NAME = "strict_focus_session";
     private static final String KEY_START_TIME = "start_time";
     private static final String KEY_RUNNING = "running";
+    private static final String KEY_TIMER_MODE = "timer_mode";
     private static final String KEY_TARGET_DURATION = "target_duration";
     private static final String KEY_BLOCKED_LOG = "blocked_log";
     private static final String KEY_LAST_SUMMARY = "last_summary";
@@ -26,10 +30,15 @@ public class StrictFocusSessionStore {
     }
 
     public void start(long startTimeMillis, long targetDurationMillis) {
+        start(startTimeMillis, targetDurationMillis > 0L ? MODE_TIMER : MODE_STOPWATCH, targetDurationMillis);
+    }
+
+    public void start(long startTimeMillis, String timerMode, long targetDurationMillis) {
         preferences.edit()
                 .putBoolean(KEY_RUNNING, true)
                 .putLong(KEY_START_TIME, startTimeMillis)
-                .putLong(KEY_TARGET_DURATION, targetDurationMillis)
+                .putString(KEY_TIMER_MODE, MODE_TIMER.equals(timerMode) ? MODE_TIMER : MODE_STOPWATCH)
+                .putLong(KEY_TARGET_DURATION, Math.max(0L, targetDurationMillis))
                 .putString(KEY_BLOCKED_LOG, "")
                 .apply();
     }
@@ -42,8 +51,16 @@ public class StrictFocusSessionStore {
         return preferences.getLong(KEY_START_TIME, 0L);
     }
 
+    public String getTimerMode() {
+        return preferences.getString(KEY_TIMER_MODE, MODE_STOPWATCH);
+    }
+
+    public boolean isTimerMode() {
+        return MODE_TIMER.equals(getTimerMode()) && getTargetDurationMillis() > 0L;
+    }
+
     public long getTargetDurationMillis() {
-        return preferences.getLong(KEY_TARGET_DURATION, 25L * 60L * 1000L);
+        return preferences.getLong(KEY_TARGET_DURATION, 0L);
     }
 
     public long getElapsedMillis() {
@@ -55,11 +72,14 @@ public class StrictFocusSessionStore {
     }
 
     public long getRemainMillis() {
+        if (!isTimerMode()) {
+            return 0L;
+        }
         return Math.max(0L, getTargetDurationMillis() - getElapsedMillis());
     }
 
     public boolean isTargetReached() {
-        return getElapsedMillis() >= getTargetDurationMillis();
+        return isTimerMode() && getElapsedMillis() >= getTargetDurationMillis();
     }
 
     public void addBlockedApp(String packageName, String appName) {
@@ -119,8 +139,9 @@ public class StrictFocusSessionStore {
     }
 
     public void finishAndSaveSummary() {
+        String targetLine = isTimerMode() ? DurationFormatter.formatShortDuration(getTargetDurationMillis()) : "스톱워치";
         String summary = "총 집중 시간: " + DurationFormatter.formatShortDuration(getElapsedMillis())
-                + "\n목표 시간: " + DurationFormatter.formatShortDuration(getTargetDurationMillis())
+                + "\n진행 방식: " + targetLine
                 + "\n차단 앱 실행 시도: " + getBlockedTotalCount() + "회\n" + buildSummaryText();
         preferences.edit()
                 .putString(KEY_LAST_SUMMARY, summary)
@@ -128,6 +149,7 @@ public class StrictFocusSessionStore {
                 .remove(KEY_BLOCKED_LOG)
                 .remove(KEY_START_TIME)
                 .remove(KEY_TARGET_DURATION)
+                .remove(KEY_TIMER_MODE)
                 .apply();
     }
 
@@ -153,16 +175,8 @@ public class StrictFocusSessionStore {
             this.count = count;
         }
 
-        public String getPackageName() {
-            return packageName;
-        }
-
-        public String getAppName() {
-            return appName;
-        }
-
-        public int getCount() {
-            return count;
-        }
+        public String getPackageName() { return packageName; }
+        public String getAppName() { return appName; }
+        public int getCount() { return count; }
     }
 }
