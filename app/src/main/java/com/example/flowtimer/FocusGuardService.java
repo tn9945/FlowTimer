@@ -23,6 +23,7 @@ import androidx.core.app.NotificationCompat;
 import com.example.flowtimer.focus.DurationFormatter;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class FocusGuardService extends Service {
@@ -139,12 +140,26 @@ public class FocusGuardService extends Service {
         if (packageName.equals(getPackageName())) {
             return true;
         }
-        if (packageName.equals(BlockedAppActivity.class.getPackage().getName())) {
+        if (isHomeLauncherPackage(packageName)) {
             return true;
         }
         Set<String> allowedPackages = getSharedPreferences(AllowedAppsActivity.PREF_NAME, MODE_PRIVATE)
                 .getStringSet(AllowedAppsActivity.KEY_ALLOWED_PACKAGES, new HashSet<>());
         return allowedPackages.contains(packageName);
+    }
+
+    private boolean isHomeLauncherPackage(String packageName) {
+        PackageManager packageManager = getPackageManager();
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        List<android.content.pm.ResolveInfo> resolveInfos = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        for (android.content.pm.ResolveInfo resolveInfo : resolveInfos) {
+            if (resolveInfo.activityInfo != null && packageName.equals(resolveInfo.activityInfo.packageName)) {
+                return true;
+            }
+        }
+        android.content.pm.ResolveInfo defaultHome = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        return defaultHome != null && defaultHome.activityInfo != null && packageName.equals(defaultHome.activityInfo.packageName);
     }
 
     private void increaseEscapeCount() {
