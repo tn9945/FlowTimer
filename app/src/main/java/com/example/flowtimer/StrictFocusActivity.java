@@ -93,7 +93,6 @@ public class StrictFocusActivity extends AppCompatActivity {
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
         if (isStrictFocusRunning()) {
-            increaseEscapeCount();
             scheduleReturnAttempts();
         }
     }
@@ -111,7 +110,7 @@ public class StrictFocusActivity extends AppCompatActivity {
         super.onStop();
         if (isStrictFocusRunning() && !isFinishing()) {
             String currentPackage = getForegroundPackageName();
-            if (currentPackage == null || !isAllowedPackage(currentPackage)) {
+            if (currentPackage != null && !isAllowedPackage(currentPackage)) {
                 increaseEscapeCount();
                 scheduleReturnAttempts();
             }
@@ -206,7 +205,7 @@ public class StrictFocusActivity extends AppCompatActivity {
         PackageManager packageManager = getPackageManager();
         List<String> result = new ArrayList<>();
         for (String packageName : allowedPackages) {
-            if (packageName.equals(getPackageName())) {
+            if (packageName.equals(getPackageName()) || isHomeLauncherPackage(packageName)) {
                 continue;
             }
             if (packageManager.getLaunchIntentForPackage(packageName) != null) {
@@ -245,17 +244,17 @@ public class StrictFocusActivity extends AppCompatActivity {
     }
 
     private void scheduleReturnAttempts() {
-        returnHandler.postDelayed(this::forceReturnToStrictScreen, 120L);
-        returnHandler.postDelayed(this::forceReturnToStrictScreen, 350L);
-        returnHandler.postDelayed(this::forceReturnToStrictScreen, 800L);
+        returnHandler.postDelayed(this::blockOnlyDisallowedForegroundApp, 120L);
+        returnHandler.postDelayed(this::blockOnlyDisallowedForegroundApp, 350L);
+        returnHandler.postDelayed(this::blockOnlyDisallowedForegroundApp, 800L);
     }
 
-    private void forceReturnToStrictScreen() {
+    private void blockOnlyDisallowedForegroundApp() {
         if (!isStrictFocusRunning()) {
             return;
         }
         String currentPackage = getForegroundPackageName();
-        if (currentPackage != null && isAllowedPackage(currentPackage)) {
+        if (currentPackage == null || isAllowedPackage(currentPackage)) {
             return;
         }
         openBlockedScreen(currentPackage);
@@ -305,9 +304,29 @@ public class StrictFocusActivity extends AppCompatActivity {
         if (packageName == null) {
             return false;
         }
+        if (packageName.equals(getPackageName())) {
+            return true;
+        }
+        if (isHomeLauncherPackage(packageName)) {
+            return true;
+        }
         Set<String> allowedPackages = getSharedPreferences(AllowedAppsActivity.PREF_NAME, MODE_PRIVATE)
                 .getStringSet(AllowedAppsActivity.KEY_ALLOWED_PACKAGES, new HashSet<>());
-        return packageName.equals(getPackageName()) || allowedPackages.contains(packageName);
+        return allowedPackages.contains(packageName);
+    }
+
+    private boolean isHomeLauncherPackage(String packageName) {
+        PackageManager packageManager = getPackageManager();
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        List<android.content.pm.ResolveInfo> resolveInfos = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        for (android.content.pm.ResolveInfo resolveInfo : resolveInfos) {
+            if (resolveInfo.activityInfo != null && packageName.equals(resolveInfo.activityInfo.packageName)) {
+                return true;
+            }
+        }
+        android.content.pm.ResolveInfo defaultHome = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        return defaultHome != null && defaultHome.activityInfo != null && packageName.equals(defaultHome.activityInfo.packageName);
     }
 
     private void increaseEscapeCount() {
