@@ -52,6 +52,9 @@
             android:foregroundServiceType="dataSync" />
 
         <activity
+            android:name=".PermissionStatusActivity"
+            android:exported="false" />
+        <activity
             android:name=".StrictFocusResultActivity"
             android:exported="false" />
         <activity
