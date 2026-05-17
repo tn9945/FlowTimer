@@ -18,96 +18,42 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FlowTimer">
 
-        <receiver
-            android:name=".FocusNotificationActionReceiver"
-            android:enabled="true"
-            android:exported="false" />
-        <receiver
-            android:name=".BootReceiver"
-            android:enabled="true"
-            android:exported="false">
+        <receiver android:name=".FocusNotificationActionReceiver" android:enabled="true" android:exported="false" />
+        <receiver android:name=".BootReceiver" android:enabled="true" android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <service
-            android:name=".StrictFocusAccessibilityService"
-            android:exported="true"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+        <service android:name=".StrictFocusAccessibilityService" android:exported="true" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
-            <meta-data
-                android:name="android.accessibilityservice"
-                android:resource="@xml/strict_focus_accessibility_service" />
+            <meta-data android:name="android.accessibilityservice" android:resource="@xml/strict_focus_accessibility_service" />
         </service>
-        <service
-            android:name=".ConscienceFocusService"
-            android:exported="false"
-            android:foregroundServiceType="dataSync" />
-        <service
-            android:name=".FocusGuardService"
-            android:exported="false"
-            android:foregroundServiceType="dataSync" />
+        <service android:name=".ConscienceFocusService" android:exported="false" android:foregroundServiceType="dataSync" />
+        <service android:name=".FocusGuardService" android:exported="false" android:foregroundServiceType="dataSync" />
 
-        <activity
-            android:name=".WeeklyReportActivity"
-            android:exported="false" />
-        <activity
-            android:name=".PermissionStatusActivity"
-            android:exported="false" />
-        <activity
-            android:name=".StrictFocusResultActivity"
-            android:exported="false" />
-        <activity
-            android:name=".BlockedAppActivity"
-            android:exported="false" />
-        <activity
-            android:name=".AllowedAppsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".StrictFocusActivity"
-            android:exported="false" />
-        <activity
-            android:name=".FocusModeSelectActivity"
-            android:exported="false" />
-        <activity
-            android:name=".DeveloperModeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".FocusStatsDetailActivity"
-            android:exported="false" />
-        <activity
-            android:name=".FocusStatsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".FocusResultActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ShopActivity"
-            android:exported="false" />
-        <activity
-            android:name=".CustomizeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".WithdrawActivity"
-            android:exported="false" />
-        <activity
-            android:name=".SignupActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
-        <activity
-            android:name=".CharacterSelectActivity"
-            android:exported="false" />
-        <activity
-            android:name=".GameActivity"
-            android:exported="false" />
-        <activity
-            android:name=".LoginActivity"
-            android:exported="true">
+        <activity android:name=".FocusStartConfigActivity" android:exported="false" />
+        <activity android:name=".WeeklyReportActivity" android:exported="false" />
+        <activity android:name=".PermissionStatusActivity" android:exported="false" />
+        <activity android:name=".StrictFocusResultActivity" android:exported="false" />
+        <activity android:name=".BlockedAppActivity" android:exported="false" />
+        <activity android:name=".AllowedAppsActivity" android:exported="false" />
+        <activity android:name=".StrictFocusActivity" android:exported="false" />
+        <activity android:name=".FocusModeSelectActivity" android:exported="false" />
+        <activity android:name=".DeveloperModeActivity" android:exported="false" />
+        <activity android:name=".FocusStatsDetailActivity" android:exported="false" />
+        <activity android:name=".FocusStatsActivity" android:exported="false" />
+        <activity android:name=".FocusResultActivity" android:exported="false" />
+        <activity android:name=".ShopActivity" android:exported="false" />
+        <activity android:name=".CustomizeActivity" android:exported="false" />
+        <activity android:name=".WithdrawActivity" android:exported="false" />
+        <activity android:name=".SignupActivity" android:exported="false" />
+        <activity android:name=".MainActivity" android:exported="false" />
+        <activity android:name=".CharacterSelectActivity" android:exported="false" />
+        <activity android:name=".GameActivity" android:exported="false" />
+        <activity android:name=".LoginActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -115,5 +61,4 @@
         </activity>
 
     </application>
-
 </manifest>
