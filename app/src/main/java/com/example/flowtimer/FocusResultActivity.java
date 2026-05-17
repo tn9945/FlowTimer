@@ -37,6 +37,7 @@ public class FocusResultActivity extends AppCompatActivity {
     private TextView tvAiSummary;
     private TextView tvAiWarning;
     private TextView tvAiAdvice;
+    private FocusResultDonutView viewResultDonut;
     private LinearLayout layoutAppRecords;
     private final AiFocusSummaryRepository aiFocusSummaryRepository = new AiFocusSummaryRepository();
 
@@ -58,6 +59,7 @@ public class FocusResultActivity extends AppCompatActivity {
         tvAiSummary = findViewById(R.id.tvAiSummary);
         tvAiWarning = findViewById(R.id.tvAiWarning);
         tvAiAdvice = findViewById(R.id.tvAiAdvice);
+        viewResultDonut = findViewById(R.id.viewResultDonut);
         layoutAppRecords = findViewById(R.id.layoutAppRecords);
 
         Button btnGoMain = findViewById(R.id.btnGoMain);
@@ -78,23 +80,25 @@ public class FocusResultActivity extends AppCompatActivity {
             finish();
             return;
         }
+        long focusDuration = session.getEffectiveFocusDurationMillis() > 0L ? session.getEffectiveFocusDurationMillis() : session.getActiveDurationMillis();
         String rangeText = DurationFormatter.formatDateTime(session.getStartTimeMillis()) + " ~ " + DurationFormatter.formatDateTime(session.getEndTimeMillis());
         tvSessionRange.setText(rangeText);
-        tvTotalDuration.setText(DurationFormatter.formatDuration(session.getTotalDurationMillis()));
-        tvFocusDuration.setText(DurationFormatter.formatDuration(session.getEffectiveFocusDurationMillis() > 0L ? session.getEffectiveFocusDurationMillis() : session.getActiveDurationMillis()));
-        tvBreakDuration.setText(DurationFormatter.formatDuration(session.getBreakDurationMillis()));
-        tvStudyDuration.setText(DurationFormatter.formatDuration(session.getStudyDurationMillis()));
-        tvDistractionDuration.setText(DurationFormatter.formatDuration(session.getDistractionDurationMillis()));
-        tvScore.setText(session.getFocusScore() + "점");
-        tvSwitchCount.setText(String.valueOf(session.getAppSwitchCount()));
-        tvReward.setText("코인 " + session.getRewardCoin() + " / 경험치 " + session.getRewardExp() + " / 시간 " + session.getRewardMinutes() + "분");
+        tvTotalDuration.setText("총 측정 시간: " + DurationFormatter.formatDuration(session.getTotalDurationMillis()));
+        tvFocusDuration.setText("순집중 시간: " + DurationFormatter.formatDuration(focusDuration));
+        tvBreakDuration.setText("휴식 시간: " + DurationFormatter.formatDuration(session.getBreakDurationMillis()));
+        tvStudyDuration.setText("학습 앱 사용 시간: " + DurationFormatter.formatDuration(session.getStudyDurationMillis()));
+        tvDistractionDuration.setText("방해 앱 사용 시간: " + DurationFormatter.formatDuration(session.getDistractionDurationMillis()));
+        tvScore.setText("집중 점수: " + session.getFocusScore() + "점");
+        tvSwitchCount.setText("앱 전환 횟수: " + session.getAppSwitchCount());
+        tvReward.setText("획득 보상: 코인 " + session.getRewardCoin() + " / 경험치 " + session.getRewardExp() + " / 시간 " + session.getRewardMinutes() + "분");
+        viewResultDonut.setData(focusDuration, session.getBreakDurationMillis(), session.getDistractionDurationMillis(), session.getFocusScore());
 
         if (records != null && !records.isEmpty()) {
             AppUsageRecordEntity topRecord = records.get(0);
             String topName = AppDisplayHelper.resolveAppName(this, topRecord.getPackageName(), topRecord.getAppName());
-            tvTopApp.setText(topName + " · " + DurationFormatter.formatShortDuration(topRecord.getDurationMillis()));
+            tvTopApp.setText("가장 오래 사용한 앱: " + topName + " · " + DurationFormatter.formatShortDuration(topRecord.getDurationMillis()));
         } else {
-            tvTopApp.setText("기록 없음 · 00분 00초");
+            tvTopApp.setText("가장 오래 사용한 앱: 기록 없음");
         }
 
         bindAiSummary(session, records);
