@@ -339,8 +339,7 @@ public class StrictFocusActivity extends AppCompatActivity {
         timerHandler.removeCallbacks(timerRunnable);
         returnHandler.removeCallbacksAndMessages(null);
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        Intent intent = new Intent(this, StrictFocusResultActivity.class);
         startActivity(intent);
         finish();
     }
