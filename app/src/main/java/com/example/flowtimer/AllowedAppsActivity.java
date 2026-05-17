@@ -15,7 +15,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.flowtimer.focus.UsageAccessHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,6 +60,7 @@ public class AllowedAppsActivity extends AppCompatActivity {
 
     private void loadDefaultAllowedPackages() {
         defaultAllowedPackages.add(getPackageName());
+        defaultAllowedPackages.addAll(resolveHomeLauncherPackages());
         TelecomManager telecomManager = (TelecomManager) getSystemService(TELECOM_SERVICE);
         if (telecomManager != null && telecomManager.getDefaultDialerPackage() != null) {
             defaultAllowedPackages.add(telecomManager.getDefaultDialerPackage());
@@ -65,6 +69,24 @@ public class AllowedAppsActivity extends AppCompatActivity {
         if (smsPackageName != null) {
             defaultAllowedPackages.add(smsPackageName);
         }
+    }
+
+    private Set<String> resolveHomeLauncherPackages() {
+        Set<String> packages = new HashSet<>();
+        PackageManager packageManager = getPackageManager();
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        List<android.content.pm.ResolveInfo> resolveInfos = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        for (android.content.pm.ResolveInfo resolveInfo : resolveInfos) {
+            if (resolveInfo.activityInfo != null && resolveInfo.activityInfo.packageName != null) {
+                packages.add(resolveInfo.activityInfo.packageName);
+            }
+        }
+        android.content.pm.ResolveInfo defaultHome = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        if (defaultHome != null && defaultHome.activityInfo != null && defaultHome.activityInfo.packageName != null) {
+            packages.add(defaultHome.activityInfo.packageName);
+        }
+        return packages;
     }
 
     private void renderDefaultAllowedApps() {
@@ -133,6 +155,10 @@ public class AllowedAppsActivity extends AppCompatActivity {
 
     private void bindActions() {
         btnStartStrictFocus.setOnClickListener(v -> {
+            if (!UsageAccessHelper.hasUsageAccess(this)) {
+                showUsageAccessDialog();
+                return;
+            }
             saveAllowedPackages();
             Toast.makeText(this, "허용 앱 설정이 저장되었습니다.", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, StrictFocusActivity.class);
@@ -141,6 +167,15 @@ public class AllowedAppsActivity extends AppCompatActivity {
             finish();
         });
         btnCancelAllowedApps.setOnClickListener(v -> finish());
+    }
+
+    private void showUsageAccessDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("사용 기록 접근 권한 안내")
+                .setMessage("강제 집중 모드에서 비허용 앱 실행을 감지하려면 사용 기록 접근 권한이 필요합니다.\n\n설정 화면에서 FlowTimer를 선택한 뒤 허용해 주십시오.")
+                .setPositiveButton("설정 화면으로 이동", (dialog, which) -> UsageAccessHelper.openSettings(this))
+                .setNegativeButton("취소", null)
+                .show();
     }
 
     private void saveAllowedPackages() {
