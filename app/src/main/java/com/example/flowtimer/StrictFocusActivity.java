@@ -21,6 +21,8 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.flowtimer.focus.DurationFormatter;
+import com.example.flowtimer.focus.StrictFocusPackagePolicy;
+import com.example.flowtimer.focus.StrictFocusSessionStore;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,14 +34,16 @@ public class StrictFocusActivity extends AppCompatActivity {
     private static final String PREF_NAME = "strict_focus_session";
     private static final String KEY_START_TIME = "start_time";
     private static final String KEY_RUNNING = "running";
-    private static final String KEY_ESCAPE_COUNT = "escape_count";
     private static final String KEY_MODE_TYPE = "mode_type";
 
     private TextView tvStrictModeTitle;
     private TextView tvStrictTimer;
+    private TextView tvStrictTarget;
+    private TextView tvStrictBlocked;
     private TextView tvStrictGuide;
     private Button btnOpenAllowedApps;
     private Button btnFinishStrictFocus;
+    private StrictFocusSessionStore strictFocusSessionStore;
     private final Handler timerHandler = new Handler(Looper.getMainLooper());
     private final Handler returnHandler = new Handler(Looper.getMainLooper());
     private long startTimeMillis;
@@ -60,6 +64,7 @@ public class StrictFocusActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_strict_focus);
 
+        strictFocusSessionStore = new StrictFocusSessionStore(this);
         bindViews();
         prepareBackBlock();
         restoreOrStartSession();
@@ -111,7 +116,6 @@ public class StrictFocusActivity extends AppCompatActivity {
         if (isStrictFocusRunning() && !isFinishing()) {
             String currentPackage = getForegroundPackageName();
             if (currentPackage != null && !isAllowedPackage(currentPackage)) {
-                increaseEscapeCount();
                 scheduleReturnAttempts();
             }
         }
@@ -120,6 +124,8 @@ public class StrictFocusActivity extends AppCompatActivity {
     private void bindViews() {
         tvStrictModeTitle = findViewById(R.id.tvStrictModeTitle);
         tvStrictTimer = findViewById(R.id.tvStrictTimer);
+        tvStrictTarget = findViewById(R.id.tvStrictTarget);
+        tvStrictBlocked = findViewById(R.id.tvStrictBlocked);
         tvStrictGuide = findViewById(R.id.tvStrictGuide);
         btnOpenAllowedApps = findViewById(R.id.btnOpenAllowedApps);
         btnFinishStrictFocus = findViewById(R.id.btnFinishStrictFocus);
@@ -141,12 +147,19 @@ public class StrictFocusActivity extends AppCompatActivity {
         strictModeType = requestedMode != null ? requestedMode : preferences.getString(KEY_MODE_TYPE, FocusModeSelectActivity.STRICT_MODE_ALLOWED_APPS);
         if (running && savedStartTime > 0L) {
             startTimeMillis = savedStartTime;
-        } else {
-            startTimeMillis = System.currentTimeMillis();
+        } else if (strictFocusSessionStore.isRunning() && strictFocusSessionStore.getStartTimeMillis() > 0L) {
+            startTimeMillis = strictFocusSessionStore.getStartTimeMillis();
             preferences.edit()
                     .putBoolean(KEY_RUNNING, true)
                     .putLong(KEY_START_TIME, startTimeMillis)
-                    .putInt(KEY_ESCAPE_COUNT, 0)
+                    .putString(KEY_MODE_TYPE, strictModeType)
+                    .apply();
+        } else {
+            startTimeMillis = System.currentTimeMillis();
+            strictFocusSessionStore.start(startTimeMillis, 25L * 60L * 1000L);
+            preferences.edit()
+                    .putBoolean(KEY_RUNNING, true)
+                    .putLong(KEY_START_TIME, startTimeMillis)
                     .putString(KEY_MODE_TYPE, strictModeType)
                     .apply();
         }
@@ -177,8 +190,14 @@ public class StrictFocusActivity extends AppCompatActivity {
     }
 
     private void updateTimer() {
-        long elapsed = Math.max(0L, System.currentTimeMillis() - startTimeMillis);
+        long elapsed = strictFocusSessionStore.getElapsedMillis();
         tvStrictTimer.setText(DurationFormatter.formatClock(elapsed));
+        tvStrictTarget.setText("목표 " + DurationFormatter.formatShortDuration(strictFocusSessionStore.getTargetDurationMillis())
+                + " · 남은 시간 " + DurationFormatter.formatShortDuration(strictFocusSessionStore.getRemainMillis()));
+        tvStrictBlocked.setText("차단된 앱 실행 시도 " + strictFocusSessionStore.getBlockedTotalCount() + "회");
+        if (strictFocusSessionStore.isTargetReached()) {
+            tvStrictTarget.setText("목표 시간을 달성하였습니다. 계속 집중할 수 있습니다.");
+        }
     }
 
     private void showAllowedAppLauncherDialog() {
@@ -205,7 +224,7 @@ public class StrictFocusActivity extends AppCompatActivity {
         PackageManager packageManager = getPackageManager();
         List<String> result = new ArrayList<>();
         for (String packageName : allowedPackages) {
-            if (packageName.equals(getPackageName()) || isHomeLauncherPackage(packageName)) {
+            if (packageName.equals(getPackageName()) || StrictFocusPackagePolicy.isAllowedPackage(this, packageName) && packageManager.getLaunchIntentForPackage(packageName) == null) {
                 continue;
             }
             if (packageManager.getLaunchIntentForPackage(packageName) != null) {
@@ -239,8 +258,7 @@ public class StrictFocusActivity extends AppCompatActivity {
         if (packageName == null || isAllowedPackage(packageName)) {
             return;
         }
-        increaseEscapeCount();
-        openBlockedScreen(packageName);
+        recordAndOpenBlockedScreen(packageName);
     }
 
     private void scheduleReturnAttempts() {
@@ -257,12 +275,18 @@ public class StrictFocusActivity extends AppCompatActivity {
         if (currentPackage == null || isAllowedPackage(currentPackage)) {
             return;
         }
-        openBlockedScreen(currentPackage);
+        recordAndOpenBlockedScreen(currentPackage);
     }
 
-    private void openBlockedScreen(String packageName) {
+    private void recordAndOpenBlockedScreen(String packageName) {
+        String appName = resolveAppName(packageName);
+        strictFocusSessionStore.addBlockedApp(packageName, appName);
+        openBlockedScreen(appName);
+    }
+
+    private void openBlockedScreen(String appName) {
         Intent intent = new Intent(this, BlockedAppActivity.class);
-        intent.putExtra(BlockedAppActivity.EXTRA_BLOCKED_APP_NAME, resolveAppName(packageName));
+        intent.putExtra(BlockedAppActivity.EXTRA_BLOCKED_APP_NAME, appName);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
     }
@@ -301,45 +325,15 @@ public class StrictFocusActivity extends AppCompatActivity {
     }
 
     private boolean isAllowedPackage(String packageName) {
-        if (packageName == null) {
-            return false;
-        }
-        if (packageName.equals(getPackageName())) {
-            return true;
-        }
-        if (isHomeLauncherPackage(packageName)) {
-            return true;
-        }
-        Set<String> allowedPackages = getSharedPreferences(AllowedAppsActivity.PREF_NAME, MODE_PRIVATE)
-                .getStringSet(AllowedAppsActivity.KEY_ALLOWED_PACKAGES, new HashSet<>());
-        return allowedPackages.contains(packageName);
-    }
-
-    private boolean isHomeLauncherPackage(String packageName) {
-        PackageManager packageManager = getPackageManager();
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        List<android.content.pm.ResolveInfo> resolveInfos = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-        for (android.content.pm.ResolveInfo resolveInfo : resolveInfos) {
-            if (resolveInfo.activityInfo != null && packageName.equals(resolveInfo.activityInfo.packageName)) {
-                return true;
-            }
-        }
-        android.content.pm.ResolveInfo defaultHome = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
-        return defaultHome != null && defaultHome.activityInfo != null && packageName.equals(defaultHome.activityInfo.packageName);
-    }
-
-    private void increaseEscapeCount() {
-        SharedPreferences preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-        int count = preferences.getInt(KEY_ESCAPE_COUNT, 0);
-        preferences.edit().putInt(KEY_ESCAPE_COUNT, count + 1).apply();
+        return StrictFocusPackagePolicy.isAllowedPackage(this, packageName);
     }
 
     private boolean isStrictFocusRunning() {
-        return getSharedPreferences(PREF_NAME, MODE_PRIVATE).getBoolean(KEY_RUNNING, false);
+        return strictFocusSessionStore.isRunning() || getSharedPreferences(PREF_NAME, MODE_PRIVATE).getBoolean(KEY_RUNNING, false);
     }
 
     private void finishStrictFocus(String message) {
+        strictFocusSessionStore.finishAndSaveSummary();
         getSharedPreferences(PREF_NAME, MODE_PRIVATE).edit().clear().apply();
         stopFocusGuardService();
         timerHandler.removeCallbacks(timerRunnable);
