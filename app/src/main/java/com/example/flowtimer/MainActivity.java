@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnStartFocus;
     private Button btnResetFocus;
     private Button btnStats;
+    private Button btnWeeklyReport;
     private Button btnPermissionStatus;
     private Button btnGameStart;
     private Button btnLogout;
@@ -142,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         btnStartFocus = findViewById(R.id.btnStartFocus);
         btnResetFocus = findViewById(R.id.btnResetFocus);
         btnStats = findViewById(R.id.btnStats);
+        btnWeeklyReport = findViewById(R.id.btnWeeklyReport);
         btnPermissionStatus = findViewById(R.id.btnPermissionStatus);
         btnGameStart = findViewById(R.id.btnGameStart);
         btnLogout = findViewById(R.id.btnLogout);
@@ -174,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
         });
         btnResetFocus.setOnClickListener(v -> togglePauseFocusSession());
         btnStats.setOnClickListener(v -> startActivity(new Intent(this, FocusStatsActivity.class)));
+        btnWeeklyReport.setOnClickListener(v -> startActivity(new Intent(this, WeeklyReportActivity.class)));
         btnPermissionStatus.setOnClickListener(v -> startActivity(new Intent(this, PermissionStatusActivity.class)));
         btnGameStart.setOnClickListener(v -> {
             String userId = sessionManager.getUserIdentifier();
@@ -329,6 +332,7 @@ public class MainActivity extends AppCompatActivity {
         btnStartFocus.setEnabled(enabled);
         btnResetFocus.setEnabled(enabled && isCurrentUserSessionRunning());
         btnStats.setEnabled(enabled);
+        btnWeeklyReport.setEnabled(enabled);
         btnPermissionStatus.setEnabled(enabled);
         btnGameStart.setEnabled(enabled);
         btnLogout.setEnabled(enabled);
