@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/flow_ivory">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="주간 집중 리포트" android:textColor="@color/flow_text_primary" android:textSize="28sp" android:textStyle="bold"/>
+        <TextView android:id="@+id/tvWeeklyReport" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:background="@drawable/bg_summary_card" android:padding="18dp" android:text="주간 리포트를 생성하고 있습니다." android:textColor="@color/flow_text_primary" android:textSize="16sp"/>
+        <Button android:id="@+id/btnGoStats" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="24dp" android:background="@drawable/bg_button_stats" android:backgroundTint="@color/flow_button_stats" android:text="통계 화면으로 이동" android:textAllCaps="false" android:textColor="@color/white"/>
+        <Button android:id="@+id/btnGoMain" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="12dp" android:background="@drawable/bg_button_red" android:backgroundTint="@color/flow_button_danger" android:text="메인 화면으로 이동" android:textAllCaps="false" android:textColor="@color/white"/>
+    </LinearLayout>
+</ScrollView>
