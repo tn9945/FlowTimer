@@ -24,6 +24,7 @@ import com.example.flowtimer.focus.ActiveFocusSessionStore;
 import com.example.flowtimer.focus.AppUsageAnalyzer;
 import com.example.flowtimer.focus.DurationFormatter;
 import com.example.flowtimer.focus.FocusAnalysisResult;
+import com.example.flowtimer.focus.FocusQuestManager;
 import com.example.flowtimer.focus.FocusRepository;
 import com.example.flowtimer.focus.RewardManager;
 import com.example.flowtimer.focus.RewardResult;
@@ -41,13 +42,17 @@ public class MainActivity extends AppCompatActivity {
     private ActiveFocusSessionStore activeFocusSessionStore;
     private ExecutorService analysisExecutor;
     private final RewardManager rewardManager = new RewardManager();
+    private FocusQuestManager focusQuestManager;
 
     private TextView tvWelcome;
     private TextView tvUserId;
     private TextView tvTimer;
+    private TextView tvDailyQuest;
+    private TextView tvFocusStreak;
     private Button btnStartFocus;
     private Button btnResetFocus;
     private Button btnStats;
+    private Button btnPermissionStatus;
     private Button btnGameStart;
     private Button btnLogout;
     private TextView tvWithdraw;
@@ -80,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
         focusRepository = new FocusRepository(this);
         activeFocusSessionStore = new ActiveFocusSessionStore(this);
+        focusQuestManager = new FocusQuestManager(this);
         analysisExecutor = Executors.newSingleThreadExecutor();
 
         registerPermissionLaunchers();
@@ -101,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         syncFocusSessionUi();
+        bindQuestStatus();
     }
 
     @Override
@@ -130,9 +137,12 @@ public class MainActivity extends AppCompatActivity {
         tvWelcome = findViewById(R.id.tvWelcome);
         tvUserId = findViewById(R.id.tvUserId);
         tvTimer = findViewById(R.id.tvTimer);
+        tvDailyQuest = findViewById(R.id.tvDailyQuest);
+        tvFocusStreak = findViewById(R.id.tvFocusStreak);
         btnStartFocus = findViewById(R.id.btnStartFocus);
         btnResetFocus = findViewById(R.id.btnResetFocus);
         btnStats = findViewById(R.id.btnStats);
+        btnPermissionStatus = findViewById(R.id.btnPermissionStatus);
         btnGameStart = findViewById(R.id.btnGameStart);
         btnLogout = findViewById(R.id.btnLogout);
         tvWithdraw = findViewById(R.id.tvWithdraw);
@@ -143,6 +153,15 @@ public class MainActivity extends AppCompatActivity {
         tvWelcome.setText(sessionManager.getUserName() + "님, 환영합니다.");
         tvUserId.setText("ID: " + sessionManager.getUserIdentifier());
         btnGameStart.setText("Game");
+        bindQuestStatus();
+    }
+
+    private void bindQuestStatus() {
+        if (focusQuestManager == null) {
+            return;
+        }
+        tvDailyQuest.setText(focusQuestManager.getDailyQuestText());
+        tvFocusStreak.setText(focusQuestManager.getStreakText() + " · 오늘 차단 " + focusQuestManager.getTodayBlockedCount() + "회");
     }
 
     private void bindActions() {
@@ -155,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
         });
         btnResetFocus.setOnClickListener(v -> togglePauseFocusSession());
         btnStats.setOnClickListener(v -> startActivity(new Intent(this, FocusStatsActivity.class)));
+        btnPermissionStatus.setOnClickListener(v -> startActivity(new Intent(this, PermissionStatusActivity.class)));
         btnGameStart.setOnClickListener(v -> {
             String userId = sessionManager.getUserIdentifier();
             SharedPreferences preferences = getSharedPreferences("game_data", MODE_PRIVATE);
@@ -283,8 +303,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         long endTimeMillis = System.currentTimeMillis();
+        long durationMillis = activeFocusSessionStore.getElapsedDurationMillis();
         activeFocusSessionStore.clear();
         stopConscienceFocusService();
+        focusQuestManager.recordFocus(durationMillis, 0);
+        bindQuestStatus();
         syncFocusSessionUi();
         setMainActionEnabled(false);
         Toast.makeText(this, "집중 기록을 분석하고 있습니다.", Toast.LENGTH_SHORT).show();
@@ -306,6 +329,7 @@ public class MainActivity extends AppCompatActivity {
         btnStartFocus.setEnabled(enabled);
         btnResetFocus.setEnabled(enabled && isCurrentUserSessionRunning());
         btnStats.setEnabled(enabled);
+        btnPermissionStatus.setEnabled(enabled);
         btnGameStart.setEnabled(enabled);
         btnLogout.setEnabled(enabled);
         tvWithdraw.setEnabled(enabled);
