@@ -2,17 +2,15 @@ package com.example.flowtimer;
 
 import android.accessibilityservice.AccessibilityService;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.view.accessibility.AccessibilityEvent;
 
 import com.example.flowtimer.focus.StrictFocusPackagePolicy;
+import com.example.flowtimer.focus.StrictFocusSessionStore;
 
 public class StrictFocusAccessibilityService extends AccessibilityService {
 
-    private static final String STRICT_SESSION_PREF_NAME = "strict_focus_session";
-    private static final String KEY_RUNNING = "running";
     private long lastBlockedTimeMillis = 0L;
     private String lastBlockedPackageName = "";
 
@@ -21,7 +19,8 @@ public class StrictFocusAccessibilityService extends AccessibilityService {
         if (event == null || event.getPackageName() == null) {
             return;
         }
-        if (!isStrictFocusRunning()) {
+        StrictFocusSessionStore store = new StrictFocusSessionStore(this);
+        if (!store.isRunning()) {
             return;
         }
         int eventType = event.getEventType();
@@ -32,27 +31,25 @@ public class StrictFocusAccessibilityService extends AccessibilityService {
         if (StrictFocusPackagePolicy.isAllowedPackage(this, packageName)) {
             return;
         }
-        blockPackage(packageName);
+        blockPackage(store, packageName);
     }
 
     @Override
     public void onInterrupt() {
     }
 
-    private boolean isStrictFocusRunning() {
-        return getSharedPreferences(STRICT_SESSION_PREF_NAME, MODE_PRIVATE).getBoolean(KEY_RUNNING, false);
-    }
-
-    private void blockPackage(String packageName) {
+    private void blockPackage(StrictFocusSessionStore store, String packageName) {
         long now = System.currentTimeMillis();
         if (packageName.equals(lastBlockedPackageName) && now - lastBlockedTimeMillis < 800L) {
             return;
         }
+        String appName = resolveAppName(packageName);
+        store.addBlockedApp(packageName, appName);
         lastBlockedPackageName = packageName;
         lastBlockedTimeMillis = now;
         performGlobalAction(GLOBAL_ACTION_BACK);
         Intent intent = new Intent(this, BlockedAppActivity.class);
-        intent.putExtra(BlockedAppActivity.EXTRA_BLOCKED_APP_NAME, resolveAppName(packageName));
+        intent.putExtra(BlockedAppActivity.EXTRA_BLOCKED_APP_NAME, appName);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
     }
