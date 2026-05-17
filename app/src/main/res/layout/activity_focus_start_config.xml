@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/flow_ivory">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="집중 시간 설정" android:textColor="@color/flow_text_primary" android:textSize="28sp" android:textStyle="bold"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:background="@drawable/bg_summary_card" android:orientation="vertical" android:padding="18dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="진행 방식" android:textColor="@color/flow_text_primary" android:textSize="18sp" android:textStyle="bold"/>
+            <RadioGroup android:id="@+id/rgTimerMode" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="vertical">
+                <RadioButton android:id="@+id/rbStopwatchMode" android:layout_width="match_parent" android:layout_height="wrap_content" android:checked="true" android:text="스톱워치 형식" android:textColor="@color/flow_text_primary"/>
+                <RadioButton android:id="@+id/rbTimerMode" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="타이머 형식" android:textColor="@color/flow_text_primary"/>
+            </RadioGroup>
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:background="@drawable/bg_summary_card" android:orientation="vertical" android:padding="18dp">
+            <TextView android:id="@+id/tvTimerInputGuide" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="타이머 시간 입력: 최소 1분, 최대 15시간" android:textColor="@color/flow_text_hint" android:textSize="15sp" android:textStyle="bold"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center_vertical" android:orientation="horizontal">
+                <EditText android:id="@+id/etHours" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/bg_outline_light" android:gravity="center" android:hint="시간" android:inputType="number" android:textColor="@color/flow_text_primary" android:textColorHint="@color/flow_text_hint"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginHorizontal="8dp" android:text="시간" android:textColor="@color/flow_text_primary" android:textStyle="bold"/>
+                <EditText android:id="@+id/etMinutes" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/bg_outline_light" android:gravity="center" android:hint="분" android:inputType="number" android:textColor="@color/flow_text_primary" android:textColorHint="@color/flow_text_hint"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="분" android:textColor="@color/flow_text_primary" android:textStyle="bold"/>
+            </LinearLayout>
+        </LinearLayout>
+        <Button android:id="@+id/btnStartConfiguredFocus" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginHorizontal="12dp" android:layout_marginTop="24dp" android:background="@drawable/bg_button_focus" android:backgroundTint="@color/flow_button_focus" android:text="다음" android:textAllCaps="false" android:textColor="@color/white" android:textSize="16sp" android:textStyle="bold"/>
+        <Button android:id="@+id/btnCancelConfig" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginHorizontal="12dp" android:layout_marginTop="12dp" android:background="@drawable/bg_button_red" android:backgroundTint="@color/flow_button_danger" android:text="취소" android:textAllCaps="false" android:textColor="@color/white" android:textSize="16sp" android:textStyle="bold"/>
+    </LinearLayout>
+</ScrollView>
