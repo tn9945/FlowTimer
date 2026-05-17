@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.provider.Telephony;
-import android.telecom.TelecomManager;
 import android.view.Gravity;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -18,7 +16,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.flowtimer.focus.UsageAccessHelper;
+import com.example.flowtimer.focus.FocusPermissionHelper;
+import com.example.flowtimer.focus.StrictFocusPackagePolicy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,6 +48,13 @@ public class AllowedAppsActivity extends AppCompatActivity {
         renderDefaultAllowedApps();
         renderInstalledApps();
         bindActions();
+        showInitialPermissionGuideIfNeeded();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateStartButtonState();
     }
 
     private void bindViews() {
@@ -59,34 +65,8 @@ public class AllowedAppsActivity extends AppCompatActivity {
     }
 
     private void loadDefaultAllowedPackages() {
-        defaultAllowedPackages.add(getPackageName());
-        defaultAllowedPackages.addAll(resolveHomeLauncherPackages());
-        TelecomManager telecomManager = (TelecomManager) getSystemService(TELECOM_SERVICE);
-        if (telecomManager != null && telecomManager.getDefaultDialerPackage() != null) {
-            defaultAllowedPackages.add(telecomManager.getDefaultDialerPackage());
-        }
-        String smsPackageName = Telephony.Sms.getDefaultSmsPackage(this);
-        if (smsPackageName != null) {
-            defaultAllowedPackages.add(smsPackageName);
-        }
-    }
-
-    private Set<String> resolveHomeLauncherPackages() {
-        Set<String> packages = new HashSet<>();
-        PackageManager packageManager = getPackageManager();
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        List<android.content.pm.ResolveInfo> resolveInfos = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-        for (android.content.pm.ResolveInfo resolveInfo : resolveInfos) {
-            if (resolveInfo.activityInfo != null && resolveInfo.activityInfo.packageName != null) {
-                packages.add(resolveInfo.activityInfo.packageName);
-            }
-        }
-        android.content.pm.ResolveInfo defaultHome = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY);
-        if (defaultHome != null && defaultHome.activityInfo != null && defaultHome.activityInfo.packageName != null) {
-            packages.add(defaultHome.activityInfo.packageName);
-        }
-        return packages;
+        defaultAllowedPackages.clear();
+        defaultAllowedPackages.addAll(StrictFocusPackagePolicy.getDefaultAllowedPackages(this));
     }
 
     private void renderDefaultAllowedApps() {
@@ -155,8 +135,8 @@ public class AllowedAppsActivity extends AppCompatActivity {
 
     private void bindActions() {
         btnStartStrictFocus.setOnClickListener(v -> {
-            if (!UsageAccessHelper.hasUsageAccess(this)) {
-                showUsageAccessDialog();
+            if (!hasRequiredStrictFocusPermissions()) {
+                showPermissionGuideDialog();
                 return;
             }
             saveAllowedPackages();
@@ -169,13 +149,40 @@ public class AllowedAppsActivity extends AppCompatActivity {
         btnCancelAllowedApps.setOnClickListener(v -> finish());
     }
 
-    private void showUsageAccessDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("사용 기록 접근 권한 안내")
-                .setMessage("강제 집중 모드에서 비허용 앱 실행을 감지하려면 사용 기록 접근 권한이 필요합니다.\n\n설정 화면에서 FlowTimer를 선택한 뒤 허용해 주십시오.")
-                .setPositiveButton("설정 화면으로 이동", (dialog, which) -> UsageAccessHelper.openSettings(this))
-                .setNegativeButton("취소", null)
-                .show();
+    private void showInitialPermissionGuideIfNeeded() {
+        if (!hasRequiredStrictFocusPermissions()) {
+            showPermissionGuideDialog();
+        }
+    }
+
+    private boolean hasRequiredStrictFocusPermissions() {
+        return FocusPermissionHelper.hasUsageAccess(this) && FocusPermissionHelper.hasAccessibilityAccess(this);
+    }
+
+    private void updateStartButtonState() {
+        if (btnStartStrictFocus == null) {
+            return;
+        }
+        btnStartStrictFocus.setText(hasRequiredStrictFocusPermissions() ? "강제 집중 시작" : "필수 설정 후 시작");
+    }
+
+    private void showPermissionGuideDialog() {
+        boolean usageGranted = FocusPermissionHelper.hasUsageAccess(this);
+        boolean serviceGranted = FocusPermissionHelper.hasAccessibilityAccess(this);
+        String message = "강제 집중 모드를 정상적으로 사용하려면 아래 설정이 필요합니다.\n\n"
+                + "1. 사용 기록 접근: " + (usageGranted ? "완료" : "필요") + "\n"
+                + "2. FlowTimer 보조 기능: " + (serviceGranted ? "완료" : "필요") + "\n\n"
+                + "두 설정을 모두 완료한 뒤 강제 집중을 시작해 주십시오.";
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle("강제 집중 모드 설정 안내")
+                .setMessage(message)
+                .setNegativeButton("닫기", null);
+        if (!usageGranted) {
+            builder.setPositiveButton("사용 기록 설정", (dialog, which) -> FocusPermissionHelper.openUsageAccessSettings(this));
+        } else if (!serviceGranted) {
+            builder.setPositiveButton("보조 기능 설정", (dialog, which) -> FocusPermissionHelper.openAccessibilitySettings(this));
+        }
+        builder.show();
     }
 
     private void saveAllowedPackages() {
