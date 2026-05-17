@@ -5,6 +5,9 @@ import android.content.SharedPreferences;
 
 public class ActiveFocusSessionStore {
 
+    public static final String MODE_STOPWATCH = "stopwatch";
+    public static final String MODE_TIMER = "timer";
+
     private static final String PREF_NAME = "focus_session_store";
     private static final String KEY_RUNNING = "running";
     private static final String KEY_USER_ID = "user_id";
@@ -12,6 +15,8 @@ public class ActiveFocusSessionStore {
     private static final String KEY_PAUSED = "paused";
     private static final String KEY_PAUSED_AT = "paused_at";
     private static final String KEY_ACCUMULATED_PAUSED_TIME = "accumulated_paused_time";
+    private static final String KEY_TIMER_MODE = "timer_mode";
+    private static final String KEY_TARGET_DURATION = "target_duration";
 
     private final SharedPreferences preferences;
 
@@ -20,6 +25,10 @@ public class ActiveFocusSessionStore {
     }
 
     public void saveRunningSession(String userId, long startTimeMillis) {
+        saveRunningSession(userId, startTimeMillis, MODE_STOPWATCH, 0L);
+    }
+
+    public void saveRunningSession(String userId, long startTimeMillis, String timerMode, long targetDurationMillis) {
         preferences.edit()
                 .putBoolean(KEY_RUNNING, true)
                 .putString(KEY_USER_ID, userId)
@@ -27,6 +36,8 @@ public class ActiveFocusSessionStore {
                 .putBoolean(KEY_PAUSED, false)
                 .putLong(KEY_PAUSED_AT, 0L)
                 .putLong(KEY_ACCUMULATED_PAUSED_TIME, 0L)
+                .putString(KEY_TIMER_MODE, MODE_TIMER.equals(timerMode) ? MODE_TIMER : MODE_STOPWATCH)
+                .putLong(KEY_TARGET_DURATION, Math.max(0L, targetDurationMillis))
                 .apply();
     }
 
@@ -46,6 +57,29 @@ public class ActiveFocusSessionStore {
 
     public long getStartTimeMillis() {
         return preferences.getLong(KEY_START_TIME, 0L);
+    }
+
+    public String getTimerMode() {
+        return preferences.getString(KEY_TIMER_MODE, MODE_STOPWATCH);
+    }
+
+    public boolean isTimerMode() {
+        return MODE_TIMER.equals(getTimerMode()) && getTargetDurationMillis() > 0L;
+    }
+
+    public long getTargetDurationMillis() {
+        return preferences.getLong(KEY_TARGET_DURATION, 0L);
+    }
+
+    public long getRemainDurationMillis() {
+        if (!isTimerMode()) {
+            return 0L;
+        }
+        return Math.max(0L, getTargetDurationMillis() - getElapsedDurationMillis());
+    }
+
+    public boolean isTimerFinished() {
+        return isTimerMode() && getElapsedDurationMillis() >= getTargetDurationMillis();
     }
 
     public boolean isPaused() {
