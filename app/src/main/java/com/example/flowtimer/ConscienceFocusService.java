@@ -80,11 +80,13 @@ public class ConscienceFocusService extends Service {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         boolean paused = activeFocusSessionStore.isPaused();
-        long elapsed = activeFocusSessionStore.getElapsedDurationMillis();
+        String timeText = activeFocusSessionStore.isTimerMode()
+                ? "남은 시간 " + DurationFormatter.formatClock(activeFocusSessionStore.getRemainDurationMillis())
+                : "집중 시간 " + DurationFormatter.formatClock(activeFocusSessionStore.getElapsedDurationMillis());
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.flow_timer_app_icon_transparent)
                 .setContentTitle(paused ? "양심 집중 모드 일시정지 중" : "양심 집중 모드 실행 중")
-                .setContentText("집중 시간 " + DurationFormatter.formatClock(elapsed))
+                .setContentText(timeText)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setSilent(true)
