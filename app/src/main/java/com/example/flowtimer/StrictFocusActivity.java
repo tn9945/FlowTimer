@@ -21,6 +21,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.flowtimer.focus.DurationFormatter;
+import com.example.flowtimer.focus.FocusQuestManager;
 import com.example.flowtimer.focus.StrictFocusPackagePolicy;
 import com.example.flowtimer.focus.StrictFocusSessionStore;
 
@@ -333,6 +334,9 @@ public class StrictFocusActivity extends AppCompatActivity {
     }
 
     private void finishStrictFocus(String message) {
+        long elapsed = strictFocusSessionStore.getElapsedMillis();
+        int blockedCount = strictFocusSessionStore.getBlockedTotalCount();
+        new FocusQuestManager(this).recordFocus(elapsed, blockedCount);
         strictFocusSessionStore.finishAndSaveSummary();
         getSharedPreferences(PREF_NAME, MODE_PRIVATE).edit().clear().apply();
         stopFocusGuardService();
