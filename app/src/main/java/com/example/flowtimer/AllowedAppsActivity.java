@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,16 +34,22 @@ public class AllowedAppsActivity extends AppCompatActivity {
 
     private LinearLayout layoutAllowedApps;
     private TextView tvDefaultAllowedApps;
-    private RadioGroup rgTargetDuration;
     private Button btnStartStrictFocus;
     private Button btnCancelAllowedApps;
     private final List<CheckBox> appCheckBoxes = new ArrayList<>();
     private final Set<String> defaultAllowedPackages = new HashSet<>();
+    private String timerMode = StrictFocusSessionStore.MODE_STOPWATCH;
+    private long targetDurationMillis = 0L;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_allowed_apps);
+        timerMode = getIntent().getStringExtra(FocusStartConfigActivity.EXTRA_TIMER_MODE);
+        if (timerMode == null) {
+            timerMode = StrictFocusSessionStore.MODE_STOPWATCH;
+        }
+        targetDurationMillis = getIntent().getLongExtra(FocusStartConfigActivity.EXTRA_TARGET_DURATION, 0L);
 
         bindViews();
         loadDefaultAllowedPackages();
@@ -63,7 +68,6 @@ public class AllowedAppsActivity extends AppCompatActivity {
     private void bindViews() {
         layoutAllowedApps = findViewById(R.id.layoutAllowedApps);
         tvDefaultAllowedApps = findViewById(R.id.tvDefaultAllowedApps);
-        rgTargetDuration = findViewById(R.id.rgTargetDuration);
         btnStartStrictFocus = findViewById(R.id.btnStartStrictFocus);
         btnCancelAllowedApps = findViewById(R.id.btnCancelAllowedApps);
     }
@@ -144,7 +148,7 @@ public class AllowedAppsActivity extends AppCompatActivity {
                 return;
             }
             saveAllowedPackages();
-            new StrictFocusSessionStore(this).start(System.currentTimeMillis(), resolveTargetDurationMillis());
+            new StrictFocusSessionStore(this).start(System.currentTimeMillis(), timerMode, targetDurationMillis);
             Toast.makeText(this, "허용 앱 설정이 저장되었습니다.", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, StrictFocusActivity.class);
             intent.putExtra(FocusModeSelectActivity.EXTRA_STRICT_MODE_TYPE, FocusModeSelectActivity.STRICT_MODE_ALLOWED_APPS);
@@ -152,20 +156,6 @@ public class AllowedAppsActivity extends AppCompatActivity {
             finish();
         });
         btnCancelAllowedApps.setOnClickListener(v -> finish());
-    }
-
-    private long resolveTargetDurationMillis() {
-        int checkedId = rgTargetDuration.getCheckedRadioButtonId();
-        if (checkedId == R.id.rbTarget15) {
-            return 15L * 60L * 1000L;
-        }
-        if (checkedId == R.id.rbTarget45) {
-            return 45L * 60L * 1000L;
-        }
-        if (checkedId == R.id.rbTarget60) {
-            return 60L * 60L * 1000L;
-        }
-        return 25L * 60L * 1000L;
     }
 
     private void showInitialPermissionGuideIfNeeded() {
