@@ -9,7 +9,6 @@ import android.app.usage.UsageEvents;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -22,16 +21,14 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.flowtimer.focus.DurationFormatter;
 import com.example.flowtimer.focus.StrictFocusPackagePolicy;
+import com.example.flowtimer.focus.StrictFocusSessionStore;
 
 public class FocusGuardService extends Service {
 
     private static final String CHANNEL_ID = "strict_focus_guard_channel";
     private static final int NOTIFICATION_ID = 2501;
-    private static final String STRICT_SESSION_PREF_NAME = "strict_focus_session";
-    private static final String KEY_RUNNING = "running";
-    private static final String KEY_START_TIME = "start_time";
-    private static final String KEY_ESCAPE_COUNT = "escape_count";
 
+    private StrictFocusSessionStore strictFocusSessionStore;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable guardRunnable = new Runnable() {
         @Override
@@ -45,6 +42,7 @@ public class FocusGuardService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        strictFocusSessionStore = new StrictFocusSessionStore(this);
         createNotificationChannel();
     }
 
@@ -69,7 +67,7 @@ public class FocusGuardService extends Service {
     }
 
     private void guardStrictFocusScreen() {
-        if (!isStrictFocusRunning()) {
+        if (!strictFocusSessionStore.isRunning()) {
             stopSelf();
             return;
         }
@@ -77,13 +75,14 @@ public class FocusGuardService extends Service {
         if (packageName == null || StrictFocusPackagePolicy.isAllowedPackage(this, packageName)) {
             return;
         }
-        increaseEscapeCount();
-        openBlockedScreen(packageName);
+        String appName = getAppName(packageName);
+        strictFocusSessionStore.addBlockedApp(packageName, appName);
+        openBlockedScreen(appName);
     }
 
-    private void openBlockedScreen(String packageName) {
+    private void openBlockedScreen(String appName) {
         Intent intent = new Intent(this, BlockedAppActivity.class);
-        intent.putExtra(BlockedAppActivity.EXTRA_BLOCKED_APP_NAME, getAppName(packageName));
+        intent.putExtra(BlockedAppActivity.EXTRA_BLOCKED_APP_NAME, appName);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
     }
@@ -103,10 +102,6 @@ public class FocusGuardService extends Service {
         if (notificationManager != null) {
             notificationManager.notify(NOTIFICATION_ID, createNotification());
         }
-    }
-
-    private boolean isStrictFocusRunning() {
-        return getSharedPreferences(STRICT_SESSION_PREF_NAME, MODE_PRIVATE).getBoolean(KEY_RUNNING, false);
     }
 
     private String getForegroundPackageName() {
@@ -130,24 +125,21 @@ public class FocusGuardService extends Service {
         return packageName;
     }
 
-    private void increaseEscapeCount() {
-        SharedPreferences preferences = getSharedPreferences(STRICT_SESSION_PREF_NAME, MODE_PRIVATE);
-        int count = preferences.getInt(KEY_ESCAPE_COUNT, 0);
-        preferences.edit().putInt(KEY_ESCAPE_COUNT, count + 1).apply();
-    }
-
     private Notification createNotification() {
         Intent intent = new Intent(this, StrictFocusActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        long startTimeMillis = getSharedPreferences(STRICT_SESSION_PREF_NAME, MODE_PRIVATE).getLong(KEY_START_TIME, 0L);
-        long elapsed = startTimeMillis > 0L ? Math.max(0L, System.currentTimeMillis() - startTimeMillis) : 0L;
+        long elapsed = strictFocusSessionStore.getElapsedMillis();
+        long remain = strictFocusSessionStore.getRemainMillis();
+        String content = strictFocusSessionStore.isTargetReached()
+                ? "목표 시간을 달성하였습니다. 집중 시간 " + DurationFormatter.formatClock(elapsed)
+                : "집중 시간 " + DurationFormatter.formatClock(elapsed) + " · 남은 시간 " + DurationFormatter.formatShortDuration(remain);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.flow_timer_app_icon_transparent)
                 .setContentTitle("강제 집중 모드 실행 중")
-                .setContentText("집중 시간 " + DurationFormatter.formatClock(elapsed))
+                .setContentText(content)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setSilent(true)
