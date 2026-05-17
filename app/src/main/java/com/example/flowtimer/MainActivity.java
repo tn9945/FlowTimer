@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     private ExecutorService analysisExecutor;
     private final RewardManager rewardManager = new RewardManager();
     private FocusQuestManager focusQuestManager;
+    private String pendingTimerMode = ActiveFocusSessionStore.MODE_STOPWATCH;
+    private long pendingTargetDurationMillis = 0L;
 
     private TextView tvWelcome;
     private TextView tvUserId;
@@ -66,7 +68,14 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             if (isCurrentUserSessionRunning()) {
-                tvTimer.setText(DurationFormatter.formatClock(activeFocusSessionStore.getElapsedDurationMillis()));
+                if (activeFocusSessionStore.isTimerFinished()) {
+                    Toast.makeText(MainActivity.this, "설정한 집중 시간이 종료되었습니다.", Toast.LENGTH_SHORT).show();
+                    stopFocusSession();
+                    return;
+                }
+                tvTimer.setText(activeFocusSessionStore.isTimerMode()
+                        ? DurationFormatter.formatClock(activeFocusSessionStore.getRemainDurationMillis())
+                        : DurationFormatter.formatClock(activeFocusSessionStore.getElapsedDurationMillis()));
                 timerHandler.postDelayed(this, 1000L);
             }
         }
@@ -225,6 +234,11 @@ public class MainActivity extends AppCompatActivity {
         }
         if (intent.getBooleanExtra(FocusModeSelectActivity.EXTRA_START_FREE_FOCUS, false)) {
             intent.removeExtra(FocusModeSelectActivity.EXTRA_START_FREE_FOCUS);
+            pendingTimerMode = intent.getStringExtra(FocusStartConfigActivity.EXTRA_TIMER_MODE);
+            if (pendingTimerMode == null) {
+                pendingTimerMode = ActiveFocusSessionStore.MODE_STOPWATCH;
+            }
+            pendingTargetDurationMillis = intent.getLongExtra(FocusStartConfigActivity.EXTRA_TARGET_DURATION, 0L);
             if (!isCurrentUserSessionRunning()) {
                 attemptStartFocusSession();
             }
@@ -244,7 +258,9 @@ public class MainActivity extends AppCompatActivity {
             btnResetFocus.setVisibility(View.VISIBLE);
             btnResetFocus.setText(activeFocusSessionStore.isPaused() ? "재개" : "일시정지");
             btnResetFocus.setEnabled(true);
-            tvTimer.setText(DurationFormatter.formatClock(activeFocusSessionStore.getElapsedDurationMillis()));
+            tvTimer.setText(activeFocusSessionStore.isTimerMode()
+                    ? DurationFormatter.formatClock(activeFocusSessionStore.getRemainDurationMillis())
+                    : DurationFormatter.formatClock(activeFocusSessionStore.getElapsedDurationMillis()));
             if (!activeFocusSessionStore.isPaused()) {
                 timerHandler.post(timerRunnable);
             }
@@ -262,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
             showUsageAccessDialog();
             return;
         }
-        activeFocusSessionStore.saveRunningSession(sessionManager.getUserIdentifier(), System.currentTimeMillis());
+        activeFocusSessionStore.saveRunningSession(sessionManager.getUserIdentifier(), System.currentTimeMillis(), pendingTimerMode, pendingTargetDurationMillis);
         startConscienceFocusService();
         Toast.makeText(this, "양심 집중 모드를 시작합니다.", Toast.LENGTH_SHORT).show();
         syncFocusSessionUi();
@@ -307,9 +323,10 @@ public class MainActivity extends AppCompatActivity {
 
         long endTimeMillis = System.currentTimeMillis();
         long durationMillis = activeFocusSessionStore.getElapsedDurationMillis();
+        boolean timerMode = activeFocusSessionStore.isTimerMode();
         activeFocusSessionStore.clear();
         stopConscienceFocusService();
-        focusQuestManager.recordFocus(durationMillis, 0);
+        focusQuestManager.recordFocus(durationMillis, 0, false, timerMode);
         bindQuestStatus();
         syncFocusSessionUi();
         setMainActionEnabled(false);
