@@ -8,9 +8,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +33,7 @@ import com.example.flowtimer.focus.RewardManager;
 import com.example.flowtimer.focus.RewardResult;
 import com.example.flowtimer.focus.UsageAccessHelper;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -51,7 +54,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvWelcome;
     private TextView tvUserId;
     private TextView tvTimer;
-    private TextView tvDailyQuest;
+    private LinearLayout layoutDailyQuest;
+    private TextView tvDailyReward;
     private TextView tvFocusStreak;
     private Button btnStartFocus;
     private Button btnResetFocus;
@@ -149,7 +153,8 @@ public class MainActivity extends AppCompatActivity {
         tvWelcome = findViewById(R.id.tvWelcome);
         tvUserId = findViewById(R.id.tvUserId);
         tvTimer = findViewById(R.id.tvTimer);
-        tvDailyQuest = findViewById(R.id.tvDailyQuest);
+        layoutDailyQuest = findViewById(R.id.layoutDailyQuest);
+        tvDailyReward = findViewById(R.id.tvDailyReward);
         tvFocusStreak = findViewById(R.id.tvFocusStreak);
         btnStartFocus = findViewById(R.id.btnStartFocus);
         btnResetFocus = findViewById(R.id.btnResetFocus);
@@ -165,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
     private void bindUserInfo() {
         tvWelcome.setText(sessionManager.getUserName() + "님, 환영합니다.");
         tvUserId.setText("ID: " + sessionManager.getUserIdentifier());
-        btnGameStart.setText("Game");
+        btnGameStart.setText("마이 펫");
         bindQuestStatus();
     }
 
@@ -173,8 +178,50 @@ public class MainActivity extends AppCompatActivity {
         if (focusQuestManager == null) {
             return;
         }
-        tvDailyQuest.setText(focusQuestManager.getDailyQuestText());
+        layoutDailyQuest.removeAllViews();
+        List<FocusQuestManager.QuestItem> questItems = focusQuestManager.getDailyQuestItems();
+        for (FocusQuestManager.QuestItem item : questItems) {
+            layoutDailyQuest.addView(createQuestRow(item));
+        }
+        tvDailyReward.setText(focusQuestManager.getRewardText());
         tvFocusStreak.setText(focusQuestManager.getStreakText() + " · 오늘 차단 " + focusQuestManager.getTodayBlockedCount() + "회");
+    }
+
+    private LinearLayout createQuestRow(FocusQuestManager.QuestItem item) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(4), 0, dp(4));
+
+        TextView markView = new TextView(this);
+        markView.setTextSize(16f);
+        markView.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams markParams = new LinearLayout.LayoutParams(dp(26), dp(26));
+        markParams.rightMargin = dp(8);
+        markView.setLayoutParams(markParams);
+
+        TextView textView = new TextView(this);
+        textView.setText(item.getText());
+        textView.setTextSize(15f);
+        textView.setTypeface(textView.getTypeface(), android.graphics.Typeface.BOLD);
+
+        if (item.getState() == FocusQuestManager.QuestState.SUCCESS) {
+            markView.setText("✓");
+            markView.setTextColor(getColor(R.color.flow_button_focus));
+            textView.setTextColor(getColor(R.color.flow_button_focus));
+        } else if (item.getState() == FocusQuestManager.QuestState.FAIL) {
+            markView.setText("✕");
+            markView.setTextColor(getColor(R.color.flow_button_danger));
+            textView.setTextColor(getColor(R.color.flow_button_danger));
+        } else {
+            markView.setText("□");
+            markView.setTextColor(getColor(R.color.flow_sky_dark));
+            textView.setTextColor(getColor(R.color.flow_sky_dark));
+        }
+
+        row.addView(markView);
+        row.addView(textView, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        return row;
     }
 
     private void bindActions() {
@@ -374,6 +421,7 @@ public class MainActivity extends AppCompatActivity {
         activeFocusSessionStore.clear();
         stopConscienceFocusService();
         focusQuestManager.recordFocus(durationMillis, 0, false, timerMode);
+        handleDailyQuestRewardIfAvailable();
         bindQuestStatus();
         syncFocusSessionUi();
         setMainActionEnabled(false);
@@ -382,7 +430,7 @@ public class MainActivity extends AppCompatActivity {
         analysisExecutor.execute(() -> {
             FocusAnalysisResult result = new AppUsageAnalyzer().analyze(this, startTimeMillis, endTimeMillis, manualBreakDurationMillis);
             RewardResult rewardResult = rewardManager.calculate(result);
-            runOnUiThread(() -> applyGameReward(rewardResult));
+            runOnUiThread(() -> applyPetReward(rewardResult));
             focusRepository.saveSession(sessionManager.getUserIdentifier(), sessionManager.getUserName(), result, rewardResult, sessionId -> {
                 setMainActionEnabled(true);
                 Intent resultIntent = new Intent(this, FocusResultActivity.class);
@@ -390,6 +438,23 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(resultIntent);
             });
         });
+    }
+
+    private void handleDailyQuestRewardIfAvailable() {
+        if (!focusQuestManager.claimTodayRewardIfAvailable()) {
+            return;
+        }
+        SharedPreferences preferences = getSharedPreferences("game_data", MODE_PRIVATE);
+        String userId = sessionManager.getUserIdentifier();
+        int currentCoin = preferences.getInt(userId + "_coin", 0);
+        int currentExp = preferences.getInt(userId + "_exp", 0);
+        int rewardCoin = focusQuestManager.getTodayRewardCoin();
+        int rewardExp = focusQuestManager.getTodayRewardExp();
+        preferences.edit()
+                .putInt(userId + "_coin", currentCoin + rewardCoin)
+                .putInt(userId + "_exp", currentExp + rewardExp)
+                .apply();
+        Toast.makeText(this, "오늘 목표 보상이 지급되었습니다.", Toast.LENGTH_SHORT).show();
     }
 
     private void setMainActionEnabled(boolean enabled) {
@@ -413,7 +478,7 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void applyGameReward(RewardResult rewardResult) {
+    private void applyPetReward(RewardResult rewardResult) {
         if (rewardResult.getCoin() <= 0 && rewardResult.getExp() <= 0 && rewardResult.getTimeMinutes() <= 0) {
             return;
         }
@@ -427,7 +492,11 @@ public class MainActivity extends AppCompatActivity {
                 .putInt(userId + "_exp", currentExp + rewardResult.getExp())
                 .putInt(userId + "_time", currentTime + rewardResult.getTimeMinutes())
                 .apply();
-        Toast.makeText(this, "집중 결과에 따라 게임 보상이 지급되었습니다.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "집중 결과에 따라 펫 보상이 지급되었습니다.", Toast.LENGTH_SHORT).show();
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
     private void openLoginAndFinish() {
