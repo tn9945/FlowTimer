@@ -46,7 +46,6 @@ public class StrictFocusActivity extends AppCompatActivity {
     private Button btnFinishStrictFocus;
     private StrictFocusSessionStore strictFocusSessionStore;
     private final Handler timerHandler = new Handler(Looper.getMainLooper());
-    private final Handler returnHandler = new Handler(Looper.getMainLooper());
     private long startTimeMillis;
     private String strictModeType = FocusModeSelectActivity.STRICT_MODE_ALLOWED_APPS;
 
@@ -85,41 +84,12 @@ public class StrictFocusActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         timerHandler.removeCallbacks(timerRunnable);
-        scheduleReturnAttempts();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         timerHandler.removeCallbacks(timerRunnable);
-        returnHandler.removeCallbacksAndMessages(null);
-    }
-
-    @Override
-    protected void onUserLeaveHint() {
-        super.onUserLeaveHint();
-        if (isStrictFocusRunning()) {
-            scheduleReturnAttempts();
-        }
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (!hasFocus && isStrictFocusRunning()) {
-            scheduleReturnAttempts();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (isStrictFocusRunning() && !isFinishing()) {
-            String currentPackage = getForegroundPackageName();
-            if (currentPackage != null && !isAllowedPackage(currentPackage)) {
-                scheduleReturnAttempts();
-            }
-        }
     }
 
     private void bindViews() {
@@ -157,7 +127,7 @@ public class StrictFocusActivity extends AppCompatActivity {
                     .apply();
         } else {
             startTimeMillis = System.currentTimeMillis();
-            strictFocusSessionStore.start(startTimeMillis, 25L * 60L * 1000L);
+            strictFocusSessionStore.start(startTimeMillis, StrictFocusSessionStore.MODE_STOPWATCH, 0L);
             preferences.edit()
                     .putBoolean(KEY_RUNNING, true)
                     .putLong(KEY_START_TIME, startTimeMillis)
@@ -191,14 +161,18 @@ public class StrictFocusActivity extends AppCompatActivity {
     }
 
     private void updateTimer() {
-        long elapsed = strictFocusSessionStore.getElapsedMillis();
-        tvStrictTimer.setText(DurationFormatter.formatClock(elapsed));
-        tvStrictTarget.setText("목표 " + DurationFormatter.formatShortDuration(strictFocusSessionStore.getTargetDurationMillis())
-                + " · 남은 시간 " + DurationFormatter.formatShortDuration(strictFocusSessionStore.getRemainMillis()));
-        tvStrictBlocked.setText("차단된 앱 실행 시도 " + strictFocusSessionStore.getBlockedTotalCount() + "회");
-        if (strictFocusSessionStore.isTargetReached()) {
-            tvStrictTarget.setText("목표 시간을 달성하였습니다. 계속 집중할 수 있습니다.");
+        long displayTime = strictFocusSessionStore.isTimerMode() ? strictFocusSessionStore.getRemainMillis() : strictFocusSessionStore.getElapsedMillis();
+        tvStrictTimer.setText(DurationFormatter.formatClock(displayTime));
+        if (strictFocusSessionStore.isTimerMode()) {
+            tvStrictTarget.setText("목표 " + DurationFormatter.formatShortDuration(strictFocusSessionStore.getTargetDurationMillis())
+                    + " · 남은 시간 " + DurationFormatter.formatShortDuration(strictFocusSessionStore.getRemainMillis()));
+            if (strictFocusSessionStore.isTargetReached()) {
+                tvStrictTarget.setText("목표 시간을 달성하였습니다. 계속 집중할 수 있습니다.");
+            }
+        } else {
+            tvStrictTarget.setText("스톱워치 방식으로 집중 중입니다.");
         }
+        tvStrictBlocked.setText("차단된 앱 실행 시도 " + strictFocusSessionStore.getBlockedTotalCount() + "회");
     }
 
     private void showAllowedAppLauncherDialog() {
@@ -262,30 +236,9 @@ public class StrictFocusActivity extends AppCompatActivity {
         recordAndOpenBlockedScreen(packageName);
     }
 
-    private void scheduleReturnAttempts() {
-        returnHandler.postDelayed(this::blockOnlyDisallowedForegroundApp, 120L);
-        returnHandler.postDelayed(this::blockOnlyDisallowedForegroundApp, 350L);
-        returnHandler.postDelayed(this::blockOnlyDisallowedForegroundApp, 800L);
-    }
-
-    private void blockOnlyDisallowedForegroundApp() {
-        if (!isStrictFocusRunning()) {
-            return;
-        }
-        String currentPackage = getForegroundPackageName();
-        if (currentPackage == null || isAllowedPackage(currentPackage)) {
-            return;
-        }
-        recordAndOpenBlockedScreen(currentPackage);
-    }
-
     private void recordAndOpenBlockedScreen(String packageName) {
         String appName = resolveAppName(packageName);
         strictFocusSessionStore.addBlockedApp(packageName, appName);
-        openBlockedScreen(appName);
-    }
-
-    private void openBlockedScreen(String appName) {
         Intent intent = new Intent(this, BlockedAppActivity.class);
         intent.putExtra(BlockedAppActivity.EXTRA_BLOCKED_APP_NAME, appName);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -336,12 +289,11 @@ public class StrictFocusActivity extends AppCompatActivity {
     private void finishStrictFocus(String message) {
         long elapsed = strictFocusSessionStore.getElapsedMillis();
         int blockedCount = strictFocusSessionStore.getBlockedTotalCount();
-        new FocusQuestManager(this).recordFocus(elapsed, blockedCount);
+        new FocusQuestManager(this).recordFocus(elapsed, blockedCount, true, strictFocusSessionStore.isTimerMode());
         strictFocusSessionStore.finishAndSaveSummary();
         getSharedPreferences(PREF_NAME, MODE_PRIVATE).edit().clear().apply();
         stopFocusGuardService();
         timerHandler.removeCallbacks(timerRunnable);
-        returnHandler.removeCallbacksAndMessages(null);
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, StrictFocusResultActivity.class);
         startActivity(intent);
