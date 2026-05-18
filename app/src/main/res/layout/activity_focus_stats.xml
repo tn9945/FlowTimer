@@ -4,7 +4,14 @@
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="집중 기록 통계" android:textColor="@color/flow_text_primary" android:textSize="28sp" android:textStyle="bold"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="최근 7일 집중 흐름" android:textStyle="bold"/>
         <com.example.flowtimer.WeeklyFocusBarChartView android:id="@+id/chartRecentSevenDays" android:layout_width="match_parent" android:layout_height="220dp" android:layout_marginTop="10dp" android:background="@drawable/bg_card" android:padding="8dp"/>
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="파랑: 총 측정 시간 / 초록: 집중 시간 / 빨강: 방해 시간" android:textColor="@color/flow_text_hint" android:textSize="13sp"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:gravity="center_vertical" android:orientation="horizontal">
+            <View android:layout_width="10dp" android:layout_height="10dp" android:background="@color/flow_button_focus"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="5dp" android:text="집중" android:textColor="@color/flow_text_hint" android:textSize="13sp"/>
+            <View android:layout_width="10dp" android:layout_height="10dp" android:layout_marginStart="12dp" android:background="@color/flow_button_stats"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="5dp" android:text="휴식" android:textColor="@color/flow_text_hint" android:textSize="13sp"/>
+            <View android:layout_width="10dp" android:layout_height="10dp" android:layout_marginStart="12dp" android:background="@color/flow_button_danger"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="5dp" android:text="방해" android:textColor="@color/flow_text_hint" android:textSize="13sp"/>
+        </LinearLayout>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="누적 세션 수" android:textColor="@color/flow_text_primary" android:textStyle="bold"/>
         <TextView android:id="@+id/tvTotalSession" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="0" android:textColor="@color/flow_text_primary" android:textSize="18sp"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="누적 집중 시간" android:textColor="@color/flow_button_focus" android:textStyle="bold"/>
