@@ -15,7 +15,6 @@ import com.example.flowtimer.focus.AiFocusSummary;
 import com.example.flowtimer.focus.AiFocusSummaryRepository;
 import com.example.flowtimer.focus.AppDisplayHelper;
 import com.example.flowtimer.focus.DurationFormatter;
-import com.example.flowtimer.focus.FocusCategory;
 import com.example.flowtimer.focus.FocusRepository;
 
 import java.util.List;
@@ -28,10 +27,7 @@ public class FocusResultActivity extends AppCompatActivity {
     private TextView tvTotalDuration;
     private TextView tvFocusDuration;
     private TextView tvBreakDuration;
-    private TextView tvStudyDuration;
     private TextView tvDistractionDuration;
-    private TextView tvScore;
-    private TextView tvSwitchCount;
     private TextView tvTopApp;
     private TextView tvReward;
     private TextView tvAiSummary;
@@ -50,10 +46,7 @@ public class FocusResultActivity extends AppCompatActivity {
         tvTotalDuration = findViewById(R.id.tvTotalDuration);
         tvFocusDuration = findViewById(R.id.tvFocusDuration);
         tvBreakDuration = findViewById(R.id.tvBreakDuration);
-        tvStudyDuration = findViewById(R.id.tvStudyDuration);
         tvDistractionDuration = findViewById(R.id.tvDistractionDuration);
-        tvScore = findViewById(R.id.tvScore);
-        tvSwitchCount = findViewById(R.id.tvSwitchCount);
         tvTopApp = findViewById(R.id.tvTopApp);
         tvReward = findViewById(R.id.tvReward);
         tvAiSummary = findViewById(R.id.tvAiSummary);
@@ -80,16 +73,13 @@ public class FocusResultActivity extends AppCompatActivity {
             finish();
             return;
         }
-        long focusDuration = session.getEffectiveFocusDurationMillis() > 0L ? session.getEffectiveFocusDurationMillis() : session.getActiveDurationMillis();
+        long focusDuration = session.getEffectiveFocusDurationMillis();
         String rangeText = DurationFormatter.formatDateTime(session.getStartTimeMillis()) + " ~ " + DurationFormatter.formatDateTime(session.getEndTimeMillis());
         tvSessionRange.setText(rangeText);
         tvTotalDuration.setText("총 측정 시간: " + DurationFormatter.formatDuration(session.getTotalDurationMillis()));
-        tvFocusDuration.setText("순집중 시간: " + DurationFormatter.formatDuration(focusDuration));
+        tvFocusDuration.setText("집중 시간: " + DurationFormatter.formatDuration(focusDuration));
         tvBreakDuration.setText("휴식 시간: " + DurationFormatter.formatDuration(session.getBreakDurationMillis()));
-        tvStudyDuration.setText("학습 앱 사용 시간: " + DurationFormatter.formatDuration(session.getStudyDurationMillis()));
-        tvDistractionDuration.setText("방해 앱 사용 시간: " + DurationFormatter.formatDuration(session.getDistractionDurationMillis()));
-        tvScore.setText("집중 점수: " + session.getFocusScore() + "점");
-        tvSwitchCount.setText("앱 전환 횟수: " + session.getAppSwitchCount());
+        tvDistractionDuration.setText("방해 시간: " + DurationFormatter.formatDuration(session.getDistractionDurationMillis()));
         tvReward.setText("획득 보상: 코인 " + session.getRewardCoin() + " / 경험치 " + session.getRewardExp() + " / 시간 " + session.getRewardMinutes() + "분");
         viewResultDonut.setData(focusDuration, session.getBreakDurationMillis(), session.getDistractionDurationMillis(), session.getFocusScore());
 
@@ -116,7 +106,7 @@ public class FocusResultActivity extends AppCompatActivity {
         layoutAppRecords.removeAllViews();
         if (records == null || records.isEmpty()) {
             TextView emptyView = new TextView(this);
-            emptyView.setText("기록된 앱 사용 내역이 없습니다.");
+            emptyView.setText("기록된 방해 앱 사용 내역이 없습니다.");
             emptyView.setTextSize(15f);
             int padding = dp(12);
             emptyView.setPadding(padding, padding, padding, padding);
@@ -144,20 +134,10 @@ public class FocusResultActivity extends AppCompatActivity {
 
         TextView textView = new TextView(this);
         String appName = AppDisplayHelper.resolveAppName(this, record.getPackageName(), record.getAppName());
-        textView.setText(appName + " · " + toCategoryLabel(record.getCategory()) + " · " + DurationFormatter.formatShortDuration(record.getDurationMillis()) + " · 실행 " + record.getLaunchCount() + "회");
+        textView.setText(appName + " · 방해 · " + DurationFormatter.formatShortDuration(record.getDurationMillis()) + " · 실행 " + record.getLaunchCount() + "회");
         textView.setTextSize(15f);
         row.addView(textView);
         return row;
-    }
-
-    private String toCategoryLabel(String category) {
-        if (FocusCategory.STUDY.equals(category)) {
-            return "학습";
-        }
-        if (FocusCategory.DISTRACTION.equals(category)) {
-            return "방해";
-        }
-        return "중립";
     }
 
     private int dp(int value) {
