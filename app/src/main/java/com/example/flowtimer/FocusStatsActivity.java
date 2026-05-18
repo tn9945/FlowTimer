@@ -29,7 +29,6 @@ public class FocusStatsActivity extends AppCompatActivity {
     private TextView tvTotalSession;
     private TextView tvTotalFocus;
     private TextView tvTotalBreak;
-    private TextView tvTotalStudy;
     private TextView tvTotalDistraction;
     private TextView tvAverageScore;
     private TextView tvPeriodTitle;
@@ -53,7 +52,6 @@ public class FocusStatsActivity extends AppCompatActivity {
         tvTotalSession = findViewById(R.id.tvTotalSession);
         tvTotalFocus = findViewById(R.id.tvTotalFocus);
         tvTotalBreak = findViewById(R.id.tvTotalBreak);
-        tvTotalStudy = findViewById(R.id.tvTotalStudy);
         tvTotalDistraction = findViewById(R.id.tvTotalDistraction);
         tvAverageScore = findViewById(R.id.tvAverageScore);
         tvPeriodTitle = findViewById(R.id.tvPeriodTitle);
@@ -89,7 +87,6 @@ public class FocusStatsActivity extends AppCompatActivity {
         tvTotalSession.setText(String.valueOf(snapshot.getTotalSessionCount()));
         tvTotalFocus.setText(DurationFormatter.formatDuration(snapshot.getTotalFocusDurationMillis()));
         tvTotalBreak.setText(DurationFormatter.formatDuration(snapshot.getTotalBreakDurationMillis()));
-        tvTotalStudy.setText(DurationFormatter.formatDuration(snapshot.getTotalStudyDurationMillis()));
         tvTotalDistraction.setText(DurationFormatter.formatDuration(snapshot.getTotalDistractionDurationMillis()));
         tvAverageScore.setText(DurationFormatter.formatScore(snapshot.getAverageFocusScore()));
         chartRecentSevenDays.setItems(snapshot.getRecentDailyChartItems());
