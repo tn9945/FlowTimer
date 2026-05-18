@@ -369,6 +369,7 @@ public class MainActivity extends AppCompatActivity {
 
         long endTimeMillis = System.currentTimeMillis();
         long durationMillis = activeFocusSessionStore.getElapsedDurationMillis();
+        long manualBreakDurationMillis = activeFocusSessionStore.getAccumulatedPausedDurationMillis();
         boolean timerMode = activeFocusSessionStore.isTimerMode();
         activeFocusSessionStore.clear();
         stopConscienceFocusService();
@@ -379,7 +380,7 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "집중 기록을 분석하고 있습니다.", Toast.LENGTH_SHORT).show();
 
         analysisExecutor.execute(() -> {
-            FocusAnalysisResult result = new AppUsageAnalyzer().analyze(this, startTimeMillis, endTimeMillis);
+            FocusAnalysisResult result = new AppUsageAnalyzer().analyze(this, startTimeMillis, endTimeMillis, manualBreakDurationMillis);
             RewardResult rewardResult = rewardManager.calculate(result);
             runOnUiThread(() -> applyGameReward(rewardResult));
             focusRepository.saveSession(sessionManager.getUserIdentifier(), sessionManager.getUserName(), result, rewardResult, sessionId -> {
