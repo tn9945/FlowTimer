@@ -126,8 +126,19 @@ public class ActiveFocusSessionStore {
             return 0L;
         }
         long now = isPaused() ? preferences.getLong(KEY_PAUSED_AT, System.currentTimeMillis()) : System.currentTimeMillis();
-        long accumulatedPausedTime = preferences.getLong(KEY_ACCUMULATED_PAUSED_TIME, 0L);
+        long accumulatedPausedTime = getAccumulatedPausedDurationMillis();
         return Math.max(0L, now - startTimeMillis - accumulatedPausedTime);
+    }
+
+    public long getAccumulatedPausedDurationMillis() {
+        long accumulated = preferences.getLong(KEY_ACCUMULATED_PAUSED_TIME, 0L);
+        if (isPaused()) {
+            long pausedAt = preferences.getLong(KEY_PAUSED_AT, 0L);
+            if (pausedAt > 0L) {
+                accumulated += Math.max(0L, System.currentTimeMillis() - pausedAt);
+            }
+        }
+        return accumulated;
     }
 
     public String getPauseReasonLog() {
