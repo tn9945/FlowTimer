@@ -23,8 +23,8 @@ public class WeeklyFocusBarChartView extends View {
 
     private final Paint axisPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint totalPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint focusPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint breakPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint distractionPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final List<FocusStatsSnapshot.DailyFocusChartItem> items = new ArrayList<>();
     private final List<float[]> touchAreas = new ArrayList<>();
@@ -45,8 +45,8 @@ public class WeeklyFocusBarChartView extends View {
         textPaint.setColor(Color.rgb(46, 58, 68));
         textPaint.setTextSize(dp(10));
         textPaint.setTextAlign(Paint.Align.CENTER);
-        totalPaint.setColor(Color.rgb(78, 163, 241));
         focusPaint.setColor(Color.rgb(134, 201, 107));
+        breakPaint.setColor(Color.rgb(78, 163, 241));
         distractionPaint.setColor(Color.rgb(226, 81, 81));
     }
 
@@ -74,29 +74,45 @@ public class WeeklyFocusBarChartView extends View {
         int chartHeight = Math.max(dp(80), bottom - top);
         long maxValue = 1L;
         for (FocusStatsSnapshot.DailyFocusChartItem item : items) {
-            maxValue = Math.max(maxValue, Math.max(item.getTotalDurationMillis(), Math.max(item.getEffectiveFocusDurationMillis(), item.getDistractionDurationMillis())));
+            maxValue = Math.max(maxValue, item.getTotalDurationMillis());
         }
 
         canvas.drawLine(left, bottom, right, bottom, axisPaint);
         canvas.drawLine(left, top, left, bottom, axisPaint);
 
         float groupWidth = (right - left) / 7f;
-        float barWidth = Math.max(dp(5), groupWidth / 5f);
+        float barWidth = Math.max(dp(12), groupWidth / 4.2f);
         for (int i = 0; i < items.size(); i++) {
             FocusStatsSnapshot.DailyFocusChartItem item = items.get(i);
             float centerX = left + (groupWidth * i) + (groupWidth / 2f);
-            drawBar(canvas, centerX - barWidth, bottom, chartHeight, item.getTotalDurationMillis(), maxValue, totalPaint, barWidth);
-            drawBar(canvas, centerX, bottom, chartHeight, item.getEffectiveFocusDurationMillis(), maxValue, focusPaint, barWidth);
-            drawBar(canvas, centerX + barWidth, bottom, chartHeight, item.getDistractionDurationMillis(), maxValue, distractionPaint, barWidth);
+            drawStackedBar(canvas, centerX, bottom, chartHeight, item, maxValue, barWidth);
             canvas.drawText(toShortDate(item.getLabel()), centerX, getHeight() - dp(12), textPaint);
             touchAreas.add(new float[]{centerX - groupWidth / 2f, top, centerX + groupWidth / 2f, bottom, i});
         }
     }
 
-    private void drawBar(Canvas canvas, float x, int bottom, int chartHeight, long value, long maxValue, Paint paint, float width) {
+    private void drawStackedBar(Canvas canvas, float centerX, int bottom, int chartHeight, FocusStatsSnapshot.DailyFocusChartItem item, long maxValue, float width) {
+        long focus = Math.max(0L, item.getEffectiveFocusDurationMillis());
+        long distraction = Math.max(0L, item.getDistractionDurationMillis());
+        long total = Math.max(0L, item.getTotalDurationMillis());
+        long calculatedBreak = Math.max(0L, total - focus - distraction);
+        if (total <= 0L) {
+            return;
+        }
+        float currentBottom = bottom;
+        currentBottom = drawStack(canvas, centerX, currentBottom, chartHeight, focus, maxValue, focusPaint, width);
+        currentBottom = drawStack(canvas, centerX, currentBottom, chartHeight, calculatedBreak, maxValue, breakPaint, width);
+        drawStack(canvas, centerX, currentBottom, chartHeight, distraction, maxValue, distractionPaint, width);
+    }
+
+    private float drawStack(Canvas canvas, float centerX, float bottom, int chartHeight, long value, long maxValue, Paint paint, float width) {
+        if (value <= 0L) {
+            return bottom;
+        }
         float ratio = maxValue <= 0L ? 0f : (float) value / (float) maxValue;
-        float height = Math.max(value > 0L ? dp(3) : 0, chartHeight * ratio);
-        canvas.drawRect(x - width / 2f, bottom - height, x + width / 2f, bottom, paint);
+        float height = Math.max(dp(3), chartHeight * ratio);
+        canvas.drawRect(centerX - width / 2f, bottom - height, centerX + width / 2f, bottom, paint);
+        return bottom - height;
     }
 
     @Override
@@ -140,11 +156,14 @@ public class WeeklyFocusBarChartView extends View {
 
     private SpannableStringBuilder createSummaryText(FocusStatsSnapshot.DailyFocusChartItem item) {
         SpannableStringBuilder builder = new SpannableStringBuilder();
-        appendColoredLabel(builder, "총 집중 시간", DurationFormatter.formatShortDuration(item.getTotalDurationMillis()), Color.rgb(78, 163, 241));
+        long breakMillis = Math.max(0L, item.getTotalDurationMillis() - item.getEffectiveFocusDurationMillis() - item.getDistractionDurationMillis());
+        appendColoredLabel(builder, "총 집중 시간", DurationFormatter.formatShortDuration(item.getTotalDurationMillis()), Color.rgb(46, 58, 68));
         builder.append("\n");
-        appendColoredLabel(builder, "실제 집중 시간", DurationFormatter.formatShortDuration(item.getEffectiveFocusDurationMillis()), Color.rgb(134, 201, 107));
+        appendColoredLabel(builder, "집중 시간", DurationFormatter.formatShortDuration(item.getEffectiveFocusDurationMillis()), Color.rgb(134, 201, 107));
         builder.append("\n");
-        appendColoredLabel(builder, "집중 방해 시간", DurationFormatter.formatShortDuration(item.getDistractionDurationMillis()), Color.rgb(226, 81, 81));
+        appendColoredLabel(builder, "휴식 시간", DurationFormatter.formatShortDuration(breakMillis), Color.rgb(78, 163, 241));
+        builder.append("\n");
+        appendColoredLabel(builder, "방해 시간", DurationFormatter.formatShortDuration(item.getDistractionDurationMillis()), Color.rgb(226, 81, 81));
         return builder;
     }
 
