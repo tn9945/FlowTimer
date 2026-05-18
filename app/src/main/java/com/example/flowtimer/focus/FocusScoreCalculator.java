@@ -6,10 +6,24 @@ public class FocusScoreCalculator {
                                                 long studyDurationMillis,
                                                 long neutralDurationMillis,
                                                 long distractionDurationMillis) {
-        long weightedNeutral = neutralDurationMillis / 2L;
-        long adjusted = studyDurationMillis + weightedNeutral - (distractionDurationMillis / 3L);
-        long upperBound = Math.max(0L, activeDurationMillis);
-        return Math.max(0L, Math.min(adjusted, upperBound));
+        return Math.max(0L, activeDurationMillis - distractionDurationMillis);
+    }
+
+    public int calculateFocusScore(long totalDurationMillis,
+                                   long focusDurationMillis,
+                                   long distractionDurationMillis,
+                                   int appSwitchCount) {
+        if (totalDurationMillis <= 0L) {
+            return 0;
+        }
+        double focusRatio = (double) Math.max(0L, focusDurationMillis) / (double) totalDurationMillis;
+        double distractionRatio = (double) Math.max(0L, distractionDurationMillis) / (double) totalDurationMillis;
+        double switchPenalty = Math.min(10.0, appSwitchCount * 0.8);
+        int score = (int) Math.round((focusRatio * 100.0) - (distractionRatio * 20.0) - switchPenalty);
+        if (score < 0) {
+            return 0;
+        }
+        return Math.min(score, 100);
     }
 
     public int calculateFocusScore(long totalDurationMillis,
@@ -17,18 +31,7 @@ public class FocusScoreCalculator {
                                    long studyDurationMillis,
                                    long distractionDurationMillis,
                                    int appSwitchCount) {
-        if (totalDurationMillis <= 0L || activeDurationMillis <= 0L) {
-            return 0;
-        }
-        double activeRatio = (double) activeDurationMillis / (double) totalDurationMillis;
-        double studyRatio = (double) studyDurationMillis / (double) activeDurationMillis;
-        double distractionRatio = (double) distractionDurationMillis / (double) activeDurationMillis;
-        double switchPenalty = Math.min(25.0, appSwitchCount * 1.8);
-        double rawScore = 25.0 + (activeRatio * 35.0) + (studyRatio * 35.0) - (distractionRatio * 30.0) - switchPenalty;
-        int score = (int) Math.round(rawScore);
-        if (score < 0) {
-            return 0;
-        }
-        return Math.min(score, 100);
+        long focusDurationMillis = Math.max(0L, activeDurationMillis - distractionDurationMillis);
+        return calculateFocusScore(totalDurationMillis, focusDurationMillis, distractionDurationMillis, appSwitchCount);
     }
 }
