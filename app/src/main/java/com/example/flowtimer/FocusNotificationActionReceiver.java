@@ -23,8 +23,7 @@ public class FocusNotificationActionReceiver extends BroadcastReceiver {
         }
         String action = intent.getAction();
         if (ACTION_PAUSE_CONSCIENCE.equals(action)) {
-            new ActiveFocusSessionStore(context).pause();
-            restartConscienceService(context);
+            openMainForPauseReason(context);
             return;
         }
         if (ACTION_RESUME_CONSCIENCE.equals(action)) {
@@ -50,6 +49,13 @@ public class FocusNotificationActionReceiver extends BroadcastReceiver {
         } else {
             context.startService(serviceIntent);
         }
+    }
+
+    private void openMainForPauseReason(Context context) {
+        Intent activityIntent = new Intent(context, MainActivity.class);
+        activityIntent.putExtra(MainActivity.EXTRA_REQUEST_PAUSE_REASON, true);
+        activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        context.startActivity(activityIntent);
     }
 
     private void openMainForStop(Context context) {
