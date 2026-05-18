@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.flowtimer.focus.AppDisplayHelper;
 import com.example.flowtimer.focus.DurationFormatter;
 import com.example.flowtimer.focus.FocusQuestManager;
 import com.example.flowtimer.focus.StrictFocusPackagePolicy;
@@ -163,14 +165,10 @@ public class StrictFocusActivity extends AppCompatActivity {
     private void updateTimer() {
         long displayTime = strictFocusSessionStore.isTimerMode() ? strictFocusSessionStore.getRemainMillis() : strictFocusSessionStore.getElapsedMillis();
         tvStrictTimer.setText(DurationFormatter.formatClock(displayTime));
-        if (strictFocusSessionStore.isTimerMode()) {
-            tvStrictTarget.setText("목표 " + DurationFormatter.formatShortDuration(strictFocusSessionStore.getTargetDurationMillis())
-                    + " · 남은 시간 " + DurationFormatter.formatShortDuration(strictFocusSessionStore.getRemainMillis()));
-            if (strictFocusSessionStore.isTargetReached()) {
-                tvStrictTarget.setText("목표 시간을 달성하였습니다. 계속 집중할 수 있습니다.");
-            }
+        if (strictFocusSessionStore.isTimerMode() && strictFocusSessionStore.isTargetReached()) {
+            tvStrictTarget.setText("목표 시간을 달성하였습니다.\n계속 집중할 수 있습니다.");
         } else {
-            tvStrictTarget.setText("스톱워치 방식으로 집중 중입니다.");
+            tvStrictTarget.setText("");
         }
         tvStrictBlocked.setText("차단된 앱 실행 시도 " + strictFocusSessionStore.getBlockedTotalCount() + "회");
     }
@@ -182,15 +180,19 @@ public class StrictFocusActivity extends AppCompatActivity {
             return;
         }
         PackageManager packageManager = getPackageManager();
-        String[] appNames = new String[launchablePackages.size()];
+        CharSequence[] appNames = new CharSequence[launchablePackages.size()];
+        Drawable[] appIcons = new Drawable[launchablePackages.size()];
         for (int i = 0; i < launchablePackages.size(); i++) {
-            appNames[i] = getAppName(packageManager, launchablePackages.get(i));
+            String packageName = launchablePackages.get(i);
+            appNames[i] = getAppName(packageManager, packageName);
+            appIcons[i] = AppDisplayHelper.resolveAppIcon(this, packageName);
         }
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("허용 앱 열기")
-                .setItems(appNames, (dialog, which) -> openAllowedApp(launchablePackages.get(which)))
+                .setAdapter(new AppIconListAdapter(this, appNames, appIcons), (d, which) -> openAllowedApp(launchablePackages.get(which)))
                 .setNegativeButton("취소", null)
-                .show();
+                .create();
+        dialog.show();
     }
 
     private List<String> getLaunchableAllowedPackages() {
@@ -280,10 +282,6 @@ public class StrictFocusActivity extends AppCompatActivity {
 
     private boolean isAllowedPackage(String packageName) {
         return StrictFocusPackagePolicy.isAllowedPackage(this, packageName);
-    }
-
-    private boolean isStrictFocusRunning() {
-        return strictFocusSessionStore.isRunning() || getSharedPreferences(PREF_NAME, MODE_PRIVATE).getBoolean(KEY_RUNNING, false);
     }
 
     private void finishStrictFocus(String message) {
