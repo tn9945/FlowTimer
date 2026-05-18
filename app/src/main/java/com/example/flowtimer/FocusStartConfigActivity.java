@@ -2,9 +2,10 @@ package com.example.flowtimer;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputFilter;
+import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,8 +23,9 @@ public class FocusStartConfigActivity extends AppCompatActivity {
     public static final String EXTRA_TARGET_DURATION = "extra_target_duration";
 
     private RadioGroup rgTimerMode;
-    private EditText etHours;
-    private EditText etMinutes;
+    private LinearLayout layoutTimerPicker;
+    private NumberPicker npHours;
+    private NumberPicker npMinutes;
     private TextView tvTimerInputGuide;
     private Button btnStartConfiguredFocus;
     private Button btnCancelConfig;
@@ -40,37 +42,44 @@ public class FocusStartConfigActivity extends AppCompatActivity {
         }
 
         rgTimerMode = findViewById(R.id.rgTimerMode);
-        etHours = findViewById(R.id.etHours);
-        etMinutes = findViewById(R.id.etMinutes);
+        layoutTimerPicker = findViewById(R.id.layoutTimerPicker);
+        npHours = findViewById(R.id.npHours);
+        npMinutes = findViewById(R.id.npMinutes);
         tvTimerInputGuide = findViewById(R.id.tvTimerInputGuide);
         btnStartConfiguredFocus = findViewById(R.id.btnStartConfiguredFocus);
         btnCancelConfig = findViewById(R.id.btnCancelConfig);
 
-        etHours.setFilters(new InputFilter[]{new InputFilter.LengthFilter(2)});
-        etMinutes.setFilters(new InputFilter[]{new InputFilter.LengthFilter(2)});
+        setupPickers();
         rgTimerMode.setOnCheckedChangeListener((group, checkedId) -> updateTimerInputState());
         btnStartConfiguredFocus.setOnClickListener(v -> proceed());
         btnCancelConfig.setOnClickListener(v -> finish());
         updateTimerInputState();
     }
 
+    private void setupPickers() {
+        npHours.setMinValue(0);
+        npHours.setMaxValue(15);
+        npHours.setValue(1);
+        npHours.setWrapSelectorWheel(false);
+
+        npMinutes.setMinValue(0);
+        npMinutes.setMaxValue(59);
+        npMinutes.setValue(0);
+        npMinutes.setWrapSelectorWheel(true);
+    }
+
     private void updateTimerInputState() {
         boolean timerMode = rgTimerMode.getCheckedRadioButtonId() == R.id.rbTimerMode;
-        etHours.setEnabled(timerMode);
-        etMinutes.setEnabled(timerMode);
+        layoutTimerPicker.setVisibility(timerMode ? View.VISIBLE : View.GONE);
         tvTimerInputGuide.setEnabled(timerMode);
-        float alpha = timerMode ? 1f : 0.45f;
-        etHours.setAlpha(alpha);
-        etMinutes.setAlpha(alpha);
-        tvTimerInputGuide.setAlpha(alpha);
     }
 
     private void proceed() {
         String timerMode = rgTimerMode.getCheckedRadioButtonId() == R.id.rbTimerMode ? ActiveFocusSessionStore.MODE_TIMER : ActiveFocusSessionStore.MODE_STOPWATCH;
         long targetDuration = 0L;
         if (ActiveFocusSessionStore.MODE_TIMER.equals(timerMode)) {
-            int hours = parseNumber(etHours.getText().toString());
-            int minutes = parseNumber(etMinutes.getText().toString());
+            int hours = npHours.getValue();
+            int minutes = npMinutes.getValue();
             int totalMinutes = (hours * 60) + minutes;
             if (totalMinutes < 1 || totalMinutes > 900) {
                 Toast.makeText(this, "타이머는 최소 1분, 최대 15시간까지 설정할 수 있습니다.", Toast.LENGTH_SHORT).show();
@@ -94,16 +103,5 @@ public class FocusStartConfigActivity extends AppCompatActivity {
             startActivity(intent);
         }
         finish();
-    }
-
-    private int parseNumber(String value) {
-        try {
-            if (value == null || value.trim().isEmpty()) {
-                return 0;
-            }
-            return Integer.parseInt(value.trim());
-        } catch (NumberFormatException e) {
-            return 0;
-        }
     }
 }
