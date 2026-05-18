@@ -40,14 +40,13 @@ public class StrictFocusAccessibilityService extends AccessibilityService {
 
     private void blockPackage(StrictFocusSessionStore store, String packageName) {
         long now = System.currentTimeMillis();
-        if (packageName.equals(lastBlockedPackageName) && now - lastBlockedTimeMillis < 800L) {
+        if (packageName.equals(lastBlockedPackageName) && now - lastBlockedTimeMillis < 1200L) {
             return;
         }
         String appName = resolveAppName(packageName);
         store.addBlockedApp(packageName, appName);
         lastBlockedPackageName = packageName;
         lastBlockedTimeMillis = now;
-        performGlobalAction(GLOBAL_ACTION_BACK);
         Intent intent = new Intent(this, BlockedAppActivity.class);
         intent.putExtra(BlockedAppActivity.EXTRA_BLOCKED_APP_NAME, appName);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
