@@ -5,9 +5,13 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
 
 import com.example.flowtimer.focus.DurationFormatter;
 import com.example.flowtimer.focus.FocusStatsSnapshot;
@@ -104,7 +108,10 @@ public class WeeklyFocusBarChartView extends View {
             if (event.getX() >= area[0] && event.getX() <= area[2] && event.getY() >= area[1] && event.getY() <= area[3]) {
                 int index = (int) area[4];
                 if (index >= 0 && index < items.size()) {
-                    showSummary(items.get(index));
+                    FocusStatsSnapshot.DailyFocusChartItem item = items.get(index);
+                    if (hasRecord(item)) {
+                        showSummary(item);
+                    }
                 }
                 return true;
             }
@@ -112,15 +119,40 @@ public class WeeklyFocusBarChartView extends View {
         return true;
     }
 
+    private boolean hasRecord(FocusStatsSnapshot.DailyFocusChartItem item) {
+        return item.getTotalDurationMillis() > 0L
+                || item.getEffectiveFocusDurationMillis() > 0L
+                || item.getDistractionDurationMillis() > 0L;
+    }
+
     private void showSummary(FocusStatsSnapshot.DailyFocusChartItem item) {
-        String message = "총 집중 시간: " + DurationFormatter.formatShortDuration(item.getTotalDurationMillis())
-                + "\n실제 집중 시간: " + DurationFormatter.formatShortDuration(item.getEffectiveFocusDurationMillis())
-                + "\n집중 방해 시간: " + DurationFormatter.formatShortDuration(item.getDistractionDurationMillis());
+        TextView messageView = new TextView(getContext());
+        messageView.setText(createSummaryText(item));
+        messageView.setTextSize(15f);
+        int padding = dp(18);
+        messageView.setPadding(padding, padding / 2, padding, padding / 2);
         new AlertDialog.Builder(getContext())
                 .setTitle(item.getLabel() + " 집중 요약")
-                .setMessage(message)
+                .setView(messageView)
                 .setPositiveButton("확인", null)
                 .show();
+    }
+
+    private SpannableStringBuilder createSummaryText(FocusStatsSnapshot.DailyFocusChartItem item) {
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        appendColoredLabel(builder, "총 집중 시간", DurationFormatter.formatShortDuration(item.getTotalDurationMillis()), Color.rgb(78, 163, 241));
+        builder.append("\n");
+        appendColoredLabel(builder, "실제 집중 시간", DurationFormatter.formatShortDuration(item.getEffectiveFocusDurationMillis()), Color.rgb(134, 201, 107));
+        builder.append("\n");
+        appendColoredLabel(builder, "집중 방해 시간", DurationFormatter.formatShortDuration(item.getDistractionDurationMillis()), Color.rgb(226, 81, 81));
+        return builder;
+    }
+
+    private void appendColoredLabel(SpannableStringBuilder builder, String label, String value, int color) {
+        int start = builder.length();
+        builder.append(label);
+        builder.setSpan(new ForegroundColorSpan(color), start, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        builder.append(": ").append(value);
     }
 
     private String toShortDate(String label) {
