@@ -9,13 +9,19 @@
                 <RadioButton android:id="@+id/rbTimerMode" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="타이머 형식" android:textColor="@color/flow_text_primary"/>
             </RadioGroup>
         </LinearLayout>
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:background="@drawable/bg_summary_card" android:orientation="vertical" android:padding="18dp">
-            <TextView android:id="@+id/tvTimerInputGuide" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="타이머 시간 입력: 최소 1분, 최대 15시간" android:textColor="@color/flow_text_hint" android:textSize="15sp" android:textStyle="bold"/>
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center_vertical" android:orientation="horizontal">
-                <EditText android:id="@+id/etHours" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/bg_outline_light" android:gravity="center" android:hint="시간" android:inputType="number" android:textColor="@color/flow_text_primary" android:textColorHint="@color/flow_text_hint"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginHorizontal="8dp" android:text="시간" android:textColor="@color/flow_text_primary" android:textStyle="bold"/>
-                <EditText android:id="@+id/etMinutes" android:layout_width="0dp" android:layout_height="52dp" android:layout_weight="1" android:background="@drawable/bg_outline_light" android:gravity="center" android:hint="분" android:inputType="number" android:textColor="@color/flow_text_primary" android:textColorHint="@color/flow_text_hint"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="분" android:textColor="@color/flow_text_primary" android:textStyle="bold"/>
+        <LinearLayout android:id="@+id/layoutTimerPicker" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:background="@drawable/bg_summary_card" android:orientation="vertical" android:padding="18dp">
+            <TextView android:id="@+id/tvTimerInputGuide" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="시간과 분을 위아래로 밀어서 설정하십시오. 기본값은 1시간 00분입니다." android:textColor="@color/flow_text_hint" android:textSize="15sp" android:textStyle="bold"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="최소 1분, 최대 15시간까지 설정할 수 있습니다." android:textColor="@color/flow_warning_light" android:textSize="13sp"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:gravity="center" android:orientation="horizontal">
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                    <NumberPicker android:id="@+id/npHours" android:layout_width="wrap_content" android:layout_height="150dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="시간" android:textColor="@color/flow_text_primary" android:textStyle="bold"/>
+                </LinearLayout>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=":" android:textColor="@color/flow_text_primary" android:textSize="28sp" android:textStyle="bold"/>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                    <NumberPicker android:id="@+id/npMinutes" android:layout_width="wrap_content" android:layout_height="150dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="분" android:textColor="@color/flow_text_primary" android:textStyle="bold"/>
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
         <Button android:id="@+id/btnStartConfiguredFocus" android:layout_width="match_parent" android:layout_height="54dp" android:layout_marginHorizontal="12dp" android:layout_marginTop="24dp" android:background="@drawable/bg_button_focus" android:backgroundTint="@color/flow_button_focus" android:text="다음" android:textAllCaps="false" android:textColor="@color/white" android:textSize="16sp" android:textStyle="bold"/>
