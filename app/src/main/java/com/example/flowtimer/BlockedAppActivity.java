@@ -17,7 +17,6 @@ public class BlockedAppActivity extends AppCompatActivity {
 
     private TextView tvBlockedMessage;
     private TextView tvBlockedFocusInfo;
-    private TextView tvBlockedRemainInfo;
     private Button btnReturnStrictFocus;
 
     @Override
@@ -27,7 +26,6 @@ public class BlockedAppActivity extends AppCompatActivity {
 
         tvBlockedMessage = findViewById(R.id.tvBlockedMessage);
         tvBlockedFocusInfo = findViewById(R.id.tvBlockedFocusInfo);
-        tvBlockedRemainInfo = findViewById(R.id.tvBlockedRemainInfo);
         btnReturnStrictFocus = findViewById(R.id.btnReturnStrictFocus);
 
         String appName = getIntent().getStringExtra(EXTRA_BLOCKED_APP_NAME);
@@ -55,15 +53,6 @@ public class BlockedAppActivity extends AppCompatActivity {
         StrictFocusSessionStore store = new StrictFocusSessionStore(this);
         long displayTime = store.isTimerMode() ? store.getRemainMillis() : store.getElapsedMillis();
         tvBlockedFocusInfo.setText((store.isTimerMode() ? "남은 집중 시간 " : "현재 집중 시간 ") + DurationFormatter.formatClock(displayTime));
-        if (store.isTimerMode()) {
-            if (store.isTargetReached()) {
-                tvBlockedRemainInfo.setText("목표 시간을 달성하였습니다.");
-            } else {
-                tvBlockedRemainInfo.setText("목표까지 남은 시간 " + DurationFormatter.formatShortDuration(store.getRemainMillis()));
-            }
-        } else {
-            tvBlockedRemainInfo.setText("확인 버튼을 누르면 타이머 화면으로 돌아갑니다.");
-        }
     }
 
     private void returnToStrictFocus() {
