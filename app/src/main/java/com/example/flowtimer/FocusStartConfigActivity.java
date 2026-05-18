@@ -7,7 +7,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,7 +25,6 @@ public class FocusStartConfigActivity extends AppCompatActivity {
     private LinearLayout layoutTimerPicker;
     private NumberPicker npHours;
     private NumberPicker npMinutes;
-    private TextView tvTimerInputGuide;
     private Button btnStartConfiguredFocus;
     private Button btnCancelConfig;
     private String focusMode;
@@ -45,7 +43,6 @@ public class FocusStartConfigActivity extends AppCompatActivity {
         layoutTimerPicker = findViewById(R.id.layoutTimerPicker);
         npHours = findViewById(R.id.npHours);
         npMinutes = findViewById(R.id.npMinutes);
-        tvTimerInputGuide = findViewById(R.id.tvTimerInputGuide);
         btnStartConfiguredFocus = findViewById(R.id.btnStartConfiguredFocus);
         btnCancelConfig = findViewById(R.id.btnCancelConfig);
 
@@ -71,7 +68,6 @@ public class FocusStartConfigActivity extends AppCompatActivity {
     private void updateTimerInputState() {
         boolean timerMode = rgTimerMode.getCheckedRadioButtonId() == R.id.rbTimerMode;
         layoutTimerPicker.setVisibility(timerMode ? View.VISIBLE : View.GONE);
-        tvTimerInputGuide.setEnabled(timerMode);
     }
 
     private void proceed() {
