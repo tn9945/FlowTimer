@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +37,7 @@ import java.util.concurrent.Executors;
 public class MainActivity extends AppCompatActivity {
 
     public static final String EXTRA_STOP_CONSCIENCE_FOCUS = "extra_stop_conscience_focus";
+    public static final String EXTRA_REQUEST_PAUSE_REASON = "extra_request_pause_reason";
 
     private SessionManager sessionManager;
     private FocusRepository focusRepository;
@@ -232,6 +234,13 @@ public class MainActivity extends AppCompatActivity {
             }
             return;
         }
+        if (intent.getBooleanExtra(EXTRA_REQUEST_PAUSE_REASON, false)) {
+            intent.removeExtra(EXTRA_REQUEST_PAUSE_REASON);
+            if (isCurrentUserSessionRunning() && !activeFocusSessionStore.isPaused()) {
+                showPauseReasonDialog();
+            }
+            return;
+        }
         if (intent.getBooleanExtra(FocusModeSelectActivity.EXTRA_START_FREE_FOCUS, false)) {
             intent.removeExtra(FocusModeSelectActivity.EXTRA_START_FREE_FOCUS);
             pendingTimerMode = intent.getStringExtra(FocusStartConfigActivity.EXTRA_TIMER_MODE);
@@ -291,10 +300,47 @@ public class MainActivity extends AppCompatActivity {
         if (activeFocusSessionStore.isPaused()) {
             activeFocusSessionStore.resume();
             Toast.makeText(this, "집중 타이머를 다시 시작하였습니다.", Toast.LENGTH_SHORT).show();
+            startConscienceFocusService();
+            syncFocusSessionUi();
         } else {
-            activeFocusSessionStore.pause();
-            Toast.makeText(this, "집중 타이머를 일시정지하였습니다.", Toast.LENGTH_SHORT).show();
+            showPauseReasonDialog();
         }
+    }
+
+    private void showPauseReasonDialog() {
+        String[] reasons = {"휴식", "화장실", "급한 용무", "식사", "통화", "기타"};
+        new AlertDialog.Builder(this)
+                .setTitle("일시정지 사유 선택")
+                .setItems(reasons, (dialog, which) -> {
+                    if (which == reasons.length - 1) {
+                        showCustomPauseReasonDialog();
+                    } else {
+                        pauseWithReason(reasons[which]);
+                    }
+                })
+                .setNegativeButton("취소", null)
+                .show();
+    }
+
+    private void showCustomPauseReasonDialog() {
+        EditText editText = new EditText(this);
+        editText.setHint("일시정지 사유를 입력하십시오.");
+        int padding = Math.round(18 * getResources().getDisplayMetrics().density);
+        editText.setPadding(padding, padding / 2, padding, padding / 2);
+        new AlertDialog.Builder(this)
+                .setTitle("기타 사유 입력")
+                .setView(editText)
+                .setPositiveButton("확인", (dialog, which) -> {
+                    String reason = editText.getText().toString().trim();
+                    pauseWithReason(reason.isEmpty() ? "기타" : reason);
+                })
+                .setNegativeButton("취소", null)
+                .show();
+    }
+
+    private void pauseWithReason(String reason) {
+        activeFocusSessionStore.pause(reason);
+        Toast.makeText(this, "집중 타이머를 일시정지하였습니다.", Toast.LENGTH_SHORT).show();
         startConscienceFocusService();
         syncFocusSessionUi();
     }
