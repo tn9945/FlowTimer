@@ -39,14 +39,15 @@ public class GameActivity extends AppCompatActivity {
     };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(Bundle state) {
+        super.onCreate(state);
         setContentView(R.layout.gamemain);
         prefix = new SessionManager(this).getUserIdentifier() + "_";
         preferences = getSharedPreferences("pet_game_data", MODE_PRIVATE);
         migrate();
         if (getIntent().getBooleanExtra(EXTRA_NEW_GAME, false)) {
-            putLong("game_end_time", System.currentTimeMillis() + getIntent().getLongExtra(EXTRA_DURATION_SECONDS, 300L) * 1000L);
+            long seconds = getIntent().getLongExtra(EXTRA_DURATION_SECONDS, 300L);
+            putLong("game_end_time", System.currentTimeMillis() + Math.max(1L, seconds) * 1000L);
         } else if (!hasActiveGame()) {
             startActivity(new Intent(this, CustomizeActivity.class));
             finish();
@@ -97,10 +98,7 @@ public class GameActivity extends AppCompatActivity {
         if (!active()) return;
         if (!getBoolean("farm_unlocked_" + index, index <= 6)) {
             new AlertDialog.Builder(this).setTitle("밭 해금").setMessage("울타리 10개와 나무조각 200개를 사용하여 해금하시겠습니까?")
-                    .setPositiveButton("해금", (d, w) -> {
-                        if (getInt("fence") < 10 || getInt("wood") < 200) { toast("재료가 부족합니다."); return; }
-                        add("fence", -10); add("wood", -200); putBoolean("farm_unlocked_" + index, true); refresh();
-                    }).setNegativeButton("취소", null).show();
+                    .setPositiveButton("해금", (d, w) -> unlockFarm(index)).setNegativeButton("취소", null).show();
             return;
         }
         long started = getLong("start_" + index);
@@ -114,6 +112,11 @@ public class GameActivity extends AppCompatActivity {
         putLong("start_" + index, 0L); putString("type_" + index, ""); add(type, 1); refresh(); toast("수확을 완료하였습니다.");
     }
 
+    private void unlockFarm(int index) {
+        if (getInt("fence") < 10 || getInt("wood") < 200) { toast("재료가 부족합니다."); return; }
+        add("fence", -10); add("wood", -200); putBoolean("farm_unlocked_" + index, true); refresh();
+    }
+
     private void plant(int index, String type) {
         String seed = "wheat".equals(type) ? "wheat_seeds" : "plum_seeds";
         if (getInt(seed) <= 0) { toast("보유한 씨앗이 없습니다."); return; }
@@ -124,14 +127,19 @@ public class GameActivity extends AppCompatActivity {
         if (!active()) return;
         if (!getBoolean(id + "_unlocked", initialTree(id))) {
             new AlertDialog.Builder(this).setTitle("숲 해금").setMessage("밀 30개를 사용하여 해금하시겠습니까?")
-                    .setPositiveButton("해금", (d, w) -> { if (getInt("wheat") < 30) { toast("밀이 부족합니다."); return; } add("wheat", -30); putBoolean(id + "_unlocked", true); refresh(); })
-                    .setNegativeButton("취소", null).show();
+                    .setPositiveButton("해금", (d, w) -> unlockTree(id)).setNegativeButton("취소", null).show();
             return;
         }
-        long now = System.currentTimeMillis(); int clicks = getInt(id + "_clicks");
+        long now = System.currentTimeMillis();
+        int clicks = getInt(id + "_clicks");
         if (clicks >= max && now - getLong(id + "_last") < cooldown) { toast("현재 쿨타임입니다."); return; }
         if (clicks >= max) clicks = 0;
         clicks++; putInt(id + "_clicks", clicks); add(id.startsWith("hard") ? "hardWood" : "wood", reward); if (clicks >= max) putLong(id + "_last", now); refresh();
+    }
+
+    private void unlockTree(String id) {
+        if (getInt("wheat") < 30) { toast("밀이 부족합니다."); return; }
+        add("wheat", -30); putBoolean(id + "_unlocked", true); refresh();
     }
 
     private void refresh() {
@@ -140,28 +148,27 @@ public class GameActivity extends AppCompatActivity {
         crops.setText("밀: " + getInt("wheat") + "개 | 자두: " + getInt("plum") + "개\n밀 씨앗: " + getInt("wheat_seeds") + "개 | 자두 씨앗: " + getInt("plum_seeds") + "개");
         woods.setText("나무조각: " + getInt("wood") + "개 | 단단한 나무조각: " + getInt("hardWood") + "개 | 울타리: " + getInt("fence") + "개");
         for (int i = 0; i < FARMS.length; i++) updateFarm(i + 1, FARMS[i]);
-        for (int i = 0; i < TREES.length; i++) { updateTree("tree" + (i + 1), TREES[i], R.drawable.tree, 5, 180000L); updateTree("hardTree" + (i + 1), HARD_TREES[i], R.drawable.hard_tree, 10, 300000L); }
+        for (int i = 0; i < TREES.length; i++) { updateTree("tree" + (i + 1), TREES[i], 5, 180000L); updateTree("hardTree" + (i + 1), HARD_TREES[i], 10, 300000L); }
     }
 
     private void updateFarm(int index, int viewId) {
         ImageView view = findViewById(viewId);
-        if (!getBoolean("farm_unlocked_" + index, index <= 6)) { view.setImageResource(R.drawable.lock); view.setAlpha(0.5f); return; }
-        view.setAlpha(1f); long started = getLong("start_" + index); String type = getString("type_" + index);
-        if (started == 0L || type.isEmpty()) { view.setImageResource(R.drawable.dirt); return; }
-        long elapsed = System.currentTimeMillis() - started;
-        if ("wheat".equals(type)) view.setImageResource(elapsed < 5000L ? R.drawable.crop_seed : elapsed < 10000L ? R.drawable.crop_stage1 : R.drawable.crop_complete);
-        else view.setImageResource(elapsed < 15000L ? R.drawable.crop_seed_2 : elapsed < 30000L ? R.drawable.crop_stage2 : R.drawable.crop_complete2);
+        if (!getBoolean("farm_unlocked_" + index, index <= 6)) { view.setImageResource(R.drawable.bg_round_red); view.setAlpha(0.5f); return; }
+        long started = getLong("start_" + index);
+        String type = getString("type_" + index);
+        if (started == 0L || type.isEmpty()) { view.setImageResource(R.drawable.bg_round_soft); view.setAlpha(1f); return; }
+        long wait = "wheat".equals(type) ? 10000L : 30000L;
+        boolean done = System.currentTimeMillis() - started >= wait;
+        view.setImageResource(done ? R.drawable.bg_round_soft : R.drawable.focus_plant_character); view.setAlpha(done ? 0.7f : 1f);
     }
 
-    private void updateTree(String id, int viewId, int drawable, int max, long cooldown) {
+    private void updateTree(String id, int viewId, int max, long cooldown) {
         ImageView view = findViewById(viewId);
-        if (!getBoolean(id + "_unlocked", initialTree(id))) { view.setImageResource(R.drawable.lock); view.setAlpha(0.4f); return; }
-        view.setImageResource(drawable); view.setAlpha(getInt(id + "_clicks") >= max && System.currentTimeMillis() - getLong(id + "_last") < cooldown ? 0.3f : 1f);
+        if (!getBoolean(id + "_unlocked", initialTree(id))) { view.setImageResource(R.drawable.bg_round_red); view.setAlpha(0.4f); return; }
+        view.setImageResource(R.drawable.focus_plant_character); view.setAlpha(getInt(id + "_clicks") >= max && System.currentTimeMillis() - getLong(id + "_last") < cooldown ? 0.3f : 1f);
     }
 
-    private boolean hasActiveGame() {
-        return getLong("game_end_time") > System.currentTimeMillis();
-    }
+    private boolean hasActiveGame() { return getLong("game_end_time") > System.currentTimeMillis(); }
 
     private boolean active() {
         if (hasActiveGame()) return true;
@@ -174,7 +181,8 @@ public class GameActivity extends AppCompatActivity {
 
     private void migrate() {
         if (preferences.getBoolean(prefix + "initialized", false)) return;
-        SharedPreferences old = getSharedPreferences("GamePrefs", MODE_PRIVATE); SharedPreferences.Editor editor = preferences.edit();
+        SharedPreferences old = getSharedPreferences("GamePrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
         String[] keys = {"wheat", "plum", "wood", "hardWood", "fence", "wheat_seeds", "plum_seeds", "today_wheat_seed_buy", "today_plum_seed_buy"};
         for (String key : keys) if (old.contains(key)) editor.putInt(prefix + key, old.getInt(key, 0));
         for (int i = 1; i <= 12; i++) { copyLong(old, editor, "start_" + i); copyString(old, editor, "type_" + i); copyBoolean(old, editor, "farm_unlocked_" + i); }
@@ -188,7 +196,6 @@ public class GameActivity extends AppCompatActivity {
     private void copyLong(SharedPreferences old, SharedPreferences.Editor editor, String key) { if (old.contains(key)) editor.putLong(prefix + key, old.getLong(key, 0L)); }
     private void copyString(SharedPreferences old, SharedPreferences.Editor editor, String key) { if (old.contains(key)) editor.putString(prefix + key, old.getString(key, "")); }
     private void copyBoolean(SharedPreferences old, SharedPreferences.Editor editor, String key) { if (old.contains(key)) editor.putBoolean(prefix + key, old.getBoolean(key, false)); }
-
     private boolean initialTree(String id) { return "tree1".equals(id) || "tree2".equals(id) || "hardTree1".equals(id); }
     private int getInt(String key) { return preferences.getInt(prefix + key, 0); }
     private void putInt(String key, int value) { preferences.edit().putInt(prefix + key, value).apply(); }
