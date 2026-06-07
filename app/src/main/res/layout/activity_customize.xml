@@ -3,22 +3,58 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:gravity="center_horizontal"
     android:padding="20dp"
-    android:gravity="center_horizontal">
+    android:background="#FFF8E7">
 
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="게임 시간 설정" android:textSize="24sp" android:textStyle="bold"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="게임 시간 설정"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#5D4037" />
 
-    <TextView android:id="@+id/txtPoint" android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="현재 포인트 : 300" android:textSize="18sp" android:layout_marginTop="20dp"/>
+    <TextView
+        android:id="@+id/txtPoint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="현재 포인트 : 0"
+        android:textSize="18sp"
+        android:textColor="#2E7D32" />
 
-    <RadioGroup android:id="@+id/timeGroup" android:layout_width="wrap_content" android:layout_height="wrap_content"
+    <RadioGroup
+        android:id="@+id/timeGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="30dp">
-        <RadioButton android:id="@+id/radio5" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="5분 (50포인트)" android:checked="true"/>
-        <RadioButton android:id="@+id/radio10" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10분 (100포인트)"/>
-        <RadioButton android:id="@+id/radio15" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="15분 (150포인트)"/>
+
+        <RadioButton
+            android:id="@+id/radio5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="5분 (50포인트)"
+            android:checked="true" />
+
+        <RadioButton
+            android:id="@+id/radio10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10분 (100포인트)" />
+
+        <RadioButton
+            android:id="@+id/radio15"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="15분 (150포인트)" />
     </RadioGroup>
 
-    <Button android:id="@+id/btnStartGame" android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="게임 시작" android:layout_marginTop="40dp"/>
+    <Button
+        android:id="@+id/btnStartGame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="게임 시작"
+        android:backgroundTint="#4CAF50" />
 </LinearLayout>
