@@ -1,23 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-        <TextView android:id="@+id/txtTimer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="남은 시간 : 0초" />
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+        <TextView android:id="@+id/txtTimer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="남은 시간 : 00분 00초" />
         <Button android:id="@+id/btnHome" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="홈" />
-        <Button android:id="@+id/btnShop" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="상점" />
-        <TextView android:id="@+id/txtCrop" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="밀 : 0 | 자두 : 0" />
-        <TextView android:id="@+id/txtWoodResource" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="나무조각 : 0 | 단단한나무조각 : 0 | 울타리 : 0" />
-        <TextView android:id="@+id/txtSeedResource" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="밀 씨앗 : 0 | 자두 씨앗 : 0" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="나무 숲" />
-        <LinearLayout android:id="@+id/treeContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="단단한 나무 숲" />
-        <LinearLayout android:id="@+id/hardTreeContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="농지" />
-        <GridLayout android:id="@+id/farmGrid" android:layout_width="match_parent" android:layout_height="wrap_content" android:columnCount="3" />
+        <Button android:id="@+id/btnShop" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="마을 상점" />
+        <TextView android:id="@+id/txtCrop" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="밀: 0개 | 자두: 0개" />
+        <TextView android:id="@+id/txtWoodResource" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="나무조각: 0개 | 단단한 나무조각: 0개 | 울타리: 0개" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+            <ImageView android:id="@+id/tree1" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:src="@drawable/focus_plant_character" />
+            <ImageView android:id="@+id/tree2" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:src="@drawable/focus_plant_character" />
+            <ImageView android:id="@+id/tree3" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:src="@drawable/bg_round_red" />
+            <ImageView android:id="@+id/tree4" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:src="@drawable/bg_round_red" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+            <ImageView android:id="@+id/hardTree1" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:src="@drawable/focus_plant_character" />
+            <ImageView android:id="@+id/hardTree2" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:src="@drawable/bg_round_red" />
+            <ImageView android:id="@+id/hardTree3" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:src="@drawable/bg_round_red" />
+            <ImageView android:id="@+id/hardTree4" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:src="@drawable/bg_round_red" />
+        </LinearLayout>
+        <GridLayout android:id="@+id/farmGrid" android:layout_width="match_parent" android:layout_height="wrap_content" android:columnCount="3">
+            <ImageView android:id="@+id/farm1" android:layout_width="96dp" android:layout_height="96dp" android:src="@drawable/bg_round_soft" />
+            <ImageView android:id="@+id/farm2" android:layout_width="96dp" android:layout_height="96dp" android:src="@drawable/bg_round_soft" />
+            <ImageView android:id="@+id/farm3" android:layout_width="96dp" android:layout_height="96dp" android:src="@drawable/bg_round_soft" />
+            <ImageView android:id="@+id/farm4" android:layout_width="96dp" android:layout_height="96dp" android:src="@drawable/bg_round_soft" />
+            <ImageView android:id="@+id/farm5" android:layout_width="96dp" android:layout_height="96dp" android:src="@drawable/bg_round_soft" />
+            <ImageView android:id="@+id/farm6" android:layout_width="96dp" android:layout_height="96dp" android:src="@drawable/bg_round_soft" />
+            <ImageView android:id="@+id/farm7" android:layout_width="96dp" android:layout_height="96dp" android:src="@drawable/bg_round_red" />
+            <ImageView android:id="@+id/farm8" android:layout_width="96dp" android:layout_height="96dp" android:src="@drawable/bg_round_red" />
+            <ImageView android:id="@+id/farm9" android:layout_width="96dp" android:layout_height="96dp" android:src="@drawable/bg_round_red" />
+            <ImageView android:id="@+id/farm10" android:layout_width="96dp" android:layout_height="96dp" android:src="@drawable/bg_round_red" />
+            <ImageView android:id="@+id/farm11" android:layout_width="96dp" android:layout_height="96dp" android:src="@drawable/bg_round_red" />
+            <ImageView android:id="@+id/farm12" android:layout_width="96dp" android:layout_height="96dp" android:src="@drawable/bg_round_red" />
+        </GridLayout>
     </LinearLayout>
 </ScrollView>
