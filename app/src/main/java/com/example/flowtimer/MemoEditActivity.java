@@ -140,7 +140,7 @@ public class MemoEditActivity extends AppCompatActivity {
     private Button button(String value) {
         Button button = new Button(this);
         button.setText(value);
-        button.setTextAllCaps(false);
+        button.setAllCaps(false);
         return button;
     }
 
