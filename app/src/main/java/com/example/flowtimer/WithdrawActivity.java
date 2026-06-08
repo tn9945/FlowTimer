@@ -98,6 +98,8 @@ public class WithdrawActivity extends AppCompatActivity {
             setLoading(false);
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
             if (success) {
+                MemoReminderScheduler.cancelAll(this, currentUserId);
+                new MemoStore(this).clear(currentUserId);
                 sessionManager.clearSession();
                 openLoginAndFinish();
             }
