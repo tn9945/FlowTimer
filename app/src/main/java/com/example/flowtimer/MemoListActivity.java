@@ -28,7 +28,7 @@ private void toggle(MemoItem item){item.setCompleted(!item.isCompleted());memoSt
 private void remove(MemoItem item){new AlertDialog.Builder(this).setTitle("메모 삭제 확인").setMessage("선택한 할 일 메모를 삭제하시겠습니까?").setPositiveButton("삭제",(dialog,which)->{memoStore.delete(sessionManager.getUserIdentifier(),item.getId());MemoReminderScheduler.cancel(this,sessionManager.getUserIdentifier(),item.getId());bindList();}).setNegativeButton("취소",null).show();}
 private void openEditor(long memoId){Intent intent=new Intent(this,MemoEditActivity.class);intent.putExtra(MemoEditActivity.EXTRA_MEMO_ID,memoId);startActivity(intent);}
 private TextView text(String value,float size,boolean bold){TextView view=new TextView(this);view.setText(value);view.setTextSize(size);view.setTextColor(getColor(bold?R.color.flow_text_primary:R.color.flow_text_hint));if(bold)view.setTypeface(view.getTypeface(),Typeface.BOLD);view.setPadding(0,dp(6),0,dp(6));return view;}
-private Button button(String value){Button view=new Button(this);view.setText(value);view.setTextAllCaps(false);return view;}
+private Button button(String value){Button view=new Button(this);view.setText(value);view.setAllCaps(false);return view;}
 private Button small(String value){Button view=button(value);view.setLayoutParams(new LinearLayout.LayoutParams(dp(84),dp(44)));return view;}
 private String label(String value){if(MemoItem.MODE_SILENT.equals(value))return"무음 알림";if(MemoItem.MODE_NOTIFICATION.equals(value))return"일반 알림";if(MemoItem.MODE_SOUND.equals(value))return"소리 알림";if(MemoItem.MODE_ALERT.equals(value))return"알람 형식";return"알림 없음";}
 private int dp(int value){return Math.round(value*getResources().getDisplayMetrics().density);}
