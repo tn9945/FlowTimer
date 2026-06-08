@@ -1,5 +1,4 @@
 package com.example.flowtimer;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,14 +7,10 @@ import android.os.Looper;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
 import java.util.Locale;
-
 public class GameActivity extends AppCompatActivity {
-
     public static final String EXTRA_NEW_GAME = "extra_new_game";
     public static final String EXTRA_DURATION_SECONDS = "extra_duration_seconds";
     private static final int[] FARMS = {R.id.farm1, R.id.farm2, R.id.farm3, R.id.farm4, R.id.farm5, R.id.farm6, R.id.farm7, R.id.farm8, R.id.farm9, R.id.farm10, R.id.farm11, R.id.farm12};
@@ -37,7 +32,6 @@ public class GameActivity extends AppCompatActivity {
             }
         }
     };
-
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -59,26 +53,22 @@ public class GameActivity extends AppCompatActivity {
         bind();
         refresh();
     }
-
     @Override
     protected void onResume() {
         super.onResume();
         handler.removeCallbacks(ticker);
         if (preferences != null && timer != null && active()) handler.postDelayed(ticker, 1000L);
     }
-
     @Override
     protected void onPause() {
         super.onPause();
         handler.removeCallbacks(ticker);
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         handler.removeCallbacks(ticker);
     }
-
     private void bind() {
         for (int i = 0; i < FARMS.length; i++) {
             int index = i + 1;
@@ -93,7 +83,6 @@ public class GameActivity extends AppCompatActivity {
         findViewById(R.id.btnShop).setOnClickListener(v -> { if (active()) startActivity(new Intent(this, ShopActivity.class)); });
         findViewById(R.id.btnHome).setOnClickListener(v -> finish());
     }
-
     private void farm(int index) {
         if (!active()) return;
         if (!getBoolean("farm_unlocked_" + index, index <= 6)) {
@@ -111,18 +100,15 @@ public class GameActivity extends AppCompatActivity {
         if (System.currentTimeMillis() - started < wait) { toast("작물이 자라고 있습니다."); return; }
         putLong("start_" + index, 0L); putString("type_" + index, ""); add(type, 1); refresh(); toast("수확을 완료하였습니다.");
     }
-
     private void unlockFarm(int index) {
         if (getInt("fence") < 10 || getInt("wood") < 200) { toast("재료가 부족합니다."); return; }
         add("fence", -10); add("wood", -200); putBoolean("farm_unlocked_" + index, true); refresh();
     }
-
     private void plant(int index, String type) {
         String seed = "wheat".equals(type) ? "wheat_seeds" : "plum_seeds";
         if (getInt(seed) <= 0) { toast("보유한 씨앗이 없습니다."); return; }
         add(seed, -1); putLong("start_" + index, System.currentTimeMillis()); putString("type_" + index, type); refresh(); toast("작물 심기를 완료하였습니다.");
     }
-
     private void tree(String id, int reward, int max, long cooldown) {
         if (!active()) return;
         if (!getBoolean(id + "_unlocked", initialTree(id))) {
@@ -136,12 +122,10 @@ public class GameActivity extends AppCompatActivity {
         if (clicks >= max) clicks = 0;
         clicks++; putInt(id + "_clicks", clicks); add(id.startsWith("hard") ? "hardWood" : "wood", reward); if (clicks >= max) putLong(id + "_last", now); refresh();
     }
-
     private void unlockTree(String id) {
         if (getInt("wheat") < 30) { toast("밀이 부족합니다."); return; }
         add("wheat", -30); putBoolean(id + "_unlocked", true); refresh();
     }
-
     private void refresh() {
         long left = Math.max(0L, getLong("game_end_time") - System.currentTimeMillis());
         timer.setText(String.format(Locale.KOREA, "남은 시간 : %02d분 %02d초", left / 60000L, left / 1000L % 60L));
@@ -150,26 +134,24 @@ public class GameActivity extends AppCompatActivity {
         for (int i = 0; i < FARMS.length; i++) updateFarm(i + 1, FARMS[i]);
         for (int i = 0; i < TREES.length; i++) { updateTree("tree" + (i + 1), TREES[i], 5, 180000L); updateTree("hardTree" + (i + 1), HARD_TREES[i], 10, 300000L); }
     }
-
     private void updateFarm(int index, int viewId) {
         ImageView view = findViewById(viewId);
         if (!getBoolean("farm_unlocked_" + index, index <= 6)) { view.setImageResource(R.drawable.bg_round_red); view.setAlpha(0.5f); return; }
         long started = getLong("start_" + index);
         String type = getString("type_" + index);
-        if (started == 0L || type.isEmpty()) { view.setImageResource(R.drawable.bg_round_soft); view.setAlpha(1f); return; }
-        long wait = "wheat".equals(type) ? 10000L : 30000L;
-        boolean done = System.currentTimeMillis() - started >= wait;
-        view.setImageResource(done ? R.drawable.bg_round_soft : R.drawable.focus_plant_character); view.setAlpha(done ? 0.7f : 1f);
+        if (started == 0L || type.isEmpty()) { view.setImageResource(R.drawable.dirt); view.setAlpha(1f); return; }
+        long elapsed = System.currentTimeMillis() - started;
+        long firstStage = "wheat".equals(type) ? 5000L : 15000L;
+        view.setImageResource(elapsed < firstStage ? R.drawable.crop_seed : R.drawable.crop_stage1);
+        view.setAlpha(1f);
     }
-
     private void updateTree(String id, int viewId, int max, long cooldown) {
         ImageView view = findViewById(viewId);
         if (!getBoolean(id + "_unlocked", initialTree(id))) { view.setImageResource(R.drawable.bg_round_red); view.setAlpha(0.4f); return; }
-        view.setImageResource(R.drawable.focus_plant_character); view.setAlpha(getInt(id + "_clicks") >= max && System.currentTimeMillis() - getLong(id + "_last") < cooldown ? 0.3f : 1f);
+        view.setImageResource(R.drawable.tree);
+        view.setAlpha(getInt(id + "_clicks") >= max && System.currentTimeMillis() - getLong(id + "_last") < cooldown ? 0.3f : 1f);
     }
-
     private boolean hasActiveGame() { return getLong("game_end_time") > System.currentTimeMillis(); }
-
     private boolean active() {
         if (hasActiveGame()) return true;
         if (!expired && preferences != null && !isFinishing()) {
@@ -178,7 +160,6 @@ public class GameActivity extends AppCompatActivity {
         }
         return false;
     }
-
     private void migrate() {
         if (preferences.getBoolean(prefix + "initialized", false)) return;
         SharedPreferences old = getSharedPreferences("GamePrefs", MODE_PRIVATE);
@@ -190,7 +171,6 @@ public class GameActivity extends AppCompatActivity {
         if (old.contains("last_buy_date")) editor.putLong(prefix + "free_seed_day", old.getLong("last_buy_date", 0L));
         editor.putBoolean(prefix + "initialized", true).apply();
     }
-
     private void copyTree(SharedPreferences old, SharedPreferences.Editor editor, String id) { copyBoolean(old, editor, id + "_unlocked"); copyInt(old, editor, id + "_clicks"); copyLong(old, editor, id + "_last"); }
     private void copyInt(SharedPreferences old, SharedPreferences.Editor editor, String key) { if (old.contains(key)) editor.putInt(prefix + key, old.getInt(key, 0)); }
     private void copyLong(SharedPreferences old, SharedPreferences.Editor editor, String key) { if (old.contains(key)) editor.putLong(prefix + key, old.getLong(key, 0L)); }
