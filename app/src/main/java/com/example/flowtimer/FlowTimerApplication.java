@@ -10,6 +10,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -25,10 +26,13 @@ public class FlowTimerApplication extends Application implements Application.Act
 
     @Override
     public void onActivityResumed(Activity activity) {
-        if (!(activity instanceof MainActivity)) {
+        if (activity instanceof MainActivity) {
+            bindMain((MainActivity) activity);
             return;
         }
-        bindMain((MainActivity) activity);
+        if (activity instanceof FocusStatsActivity) {
+            bindAiStatus((FocusStatsActivity) activity);
+        }
     }
 
     private void bindMain(MainActivity activity) {
@@ -100,6 +104,14 @@ public class FlowTimerApplication extends Application implements Application.Act
         } else {
             image.setImageResource(R.drawable.rabbit);
         }
+    }
+
+    private void bindAiStatus(FocusStatsActivity activity) {
+        TextView status = activity.findViewById(R.id.tvAiConnectionStatus);
+        if (status == null) {
+            return;
+        }
+        status.setText(new AiFocusAnalysisClient(activity).getStatusText());
     }
 
     private void openDrawer(View overlay, LinearLayout panel) {
