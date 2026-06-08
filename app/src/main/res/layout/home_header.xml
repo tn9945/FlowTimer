@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+<LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Flow Timer" android:textColor="@color/flow_sky" android:textSize="27sp" android:textStyle="bold"/>
+<TextView android:id="@+id/tvWelcome" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="7dp" android:text="사용자" android:textColor="@color/flow_text_primary" android:textSize="14sp" android:textStyle="bold"/>
+<TextView android:id="@+id/tvUserId" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="ID" android:textColor="@color/flow_text_hint" android:textSize="12sp"/>
+</LinearLayout>
+<Button android:id="@+id/btnMenu" android:layout_width="48dp" android:layout_height="48dp" android:background="@drawable/bg_home_menu_circle" android:backgroundTint="@null" android:gravity="center" android:text="&#9776;" android:textAllCaps="false" android:textColor="@color/white" android:textSize="20sp" android:textStyle="bold"/>
+</LinearLayout>
