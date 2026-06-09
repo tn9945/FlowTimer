@@ -8,10 +8,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.flowtimer.focus.AiFocusAnalysisClient;
+import com.example.flowtimer.focus.AiFocusAnalysisResult;
 import com.example.flowtimer.focus.AppDisplayHelper;
 import com.example.flowtimer.focus.DurationFormatter;
 import com.example.flowtimer.focus.FocusRepository;
@@ -32,17 +36,26 @@ public class FocusStatsActivity extends AppCompatActivity {
     private TextView tvTotalDistraction;
     private TextView tvAverageScore;
     private TextView tvPeriodTitle;
+    private TextView tvAiConnectionStatus;
+    private TextView tvAiAnalysisSummary;
+    private TextView tvAiAnalysisStrengths;
+    private TextView tvAiAnalysisImprovements;
     private WeeklyFocusBarChartView chartRecentSevenDays;
     private LinearLayout layoutOverall;
     private LinearLayout layoutDaily;
     private LinearLayout layoutHourly;
     private LinearLayout layoutApp;
+    private LinearLayout layoutAiAnalysisResult;
     private Button btnPeriodDaily;
     private Button btnPeriodWeekly;
     private Button btnPeriodMonthly;
+    private Button btnRequestAiAnalysis;
+    private ProgressBar progressAiAnalysis;
 
     private FocusStatsSnapshot snapshot;
     private String selectedPeriod = PERIOD_DAILY;
+    private SessionManager sessionManager;
+    private AiFocusAnalysisClient aiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,14 +68,21 @@ public class FocusStatsActivity extends AppCompatActivity {
         tvTotalDistraction = findViewById(R.id.tvTotalDistraction);
         tvAverageScore = findViewById(R.id.tvAverageScore);
         tvPeriodTitle = findViewById(R.id.tvPeriodTitle);
+        tvAiConnectionStatus = findViewById(R.id.tvAiConnectionStatus);
+        tvAiAnalysisSummary = findViewById(R.id.tvAiAnalysisSummary);
+        tvAiAnalysisStrengths = findViewById(R.id.tvAiAnalysisStrengths);
+        tvAiAnalysisImprovements = findViewById(R.id.tvAiAnalysisImprovements);
         chartRecentSevenDays = findViewById(R.id.chartRecentSevenDays);
         layoutOverall = findViewById(R.id.layoutOverallStats);
         layoutDaily = findViewById(R.id.layoutDailyStats);
         layoutHourly = findViewById(R.id.layoutHourlyStats);
         layoutApp = findViewById(R.id.layoutAppStats);
+        layoutAiAnalysisResult = findViewById(R.id.layoutAiAnalysisResult);
         btnPeriodDaily = findViewById(R.id.btnPeriodDaily);
         btnPeriodWeekly = findViewById(R.id.btnPeriodWeekly);
         btnPeriodMonthly = findViewById(R.id.btnPeriodMonthly);
+        btnRequestAiAnalysis = findViewById(R.id.btnRequestAiAnalysis);
+        progressAiAnalysis = findViewById(R.id.progressAiAnalysis);
 
         Button btnGoMain = findViewById(R.id.btnGoMain);
         Button btnDailyDetail = findViewById(R.id.btnDailyDetail);
@@ -76,10 +96,22 @@ public class FocusStatsActivity extends AppCompatActivity {
         btnPeriodDaily.setOnClickListener(v -> updatePeriod(PERIOD_DAILY));
         btnPeriodWeekly.setOnClickListener(v -> updatePeriod(PERIOD_WEEKLY));
         btnPeriodMonthly.setOnClickListener(v -> updatePeriod(PERIOD_MONTHLY));
+        btnRequestAiAnalysis.setOnClickListener(v -> requestAiAnalysis());
 
-        SessionManager sessionManager = new SessionManager(this);
+        sessionManager = new SessionManager(this);
+        aiClient = new AiFocusAnalysisClient(this);
+        refreshAiStatus();
+
         FocusRepository repository = new FocusRepository(this);
         repository.loadStats(sessionManager.getUserIdentifier(), this::bindSnapshot);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (aiClient != null) {
+            refreshAiStatus();
+        }
     }
 
     private void bindSnapshot(FocusStatsSnapshot snapshot) {
@@ -91,6 +123,74 @@ public class FocusStatsActivity extends AppCompatActivity {
         tvAverageScore.setText(DurationFormatter.formatScore(snapshot.getAverageFocusScore()));
         chartRecentSevenDays.setItems(snapshot.getRecentDailyChartItems());
         refreshVisibleStats();
+        refreshAiStatus();
+    }
+
+    private void requestAiAnalysis() {
+        if (snapshot == null) {
+            Toast.makeText(this, "집중 통계를 불러온 뒤 다시 요청해 주십시오.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!aiClient.isConfigured()) {
+            Toast.makeText(this, "홈 화면 개인 설정에서 AI 서버 연결을 먼저 완료해 주십시오.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        setAiLoading(true);
+        aiClient.requestAnalysis(
+                sessionManager.getUserIdentifier(),
+                snapshot.getTotalSessionCount(),
+                snapshot.getTotalFocusDurationMillis(),
+                snapshot.getTotalBreakDurationMillis(),
+                snapshot.getTotalDistractionDurationMillis(),
+                snapshot.getAverageFocusScore(),
+                new AiFocusAnalysisClient.Callback() {
+                    @Override
+                    public void onSuccess(AiFocusAnalysisResult result) {
+                        setAiLoading(false);
+                        bindAiResult(result);
+                        Toast.makeText(FocusStatsActivity.this, "AI 집중 분석을 완료하였습니다.", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(String message) {
+                        setAiLoading(false);
+                        Toast.makeText(FocusStatsActivity.this, message, Toast.LENGTH_LONG).show();
+                    }
+                }
+        );
+    }
+
+    private void refreshAiStatus() {
+        tvAiConnectionStatus.setText(aiClient.getStatusText());
+        btnRequestAiAnalysis.setEnabled(aiClient.isConfigured() && snapshot != null);
+        btnRequestAiAnalysis.setAlpha(btnRequestAiAnalysis.isEnabled() ? 1f : 0.55f);
+    }
+
+    private void setAiLoading(boolean loading) {
+        progressAiAnalysis.setVisibility(loading ? View.VISIBLE : View.GONE);
+        btnRequestAiAnalysis.setEnabled(!loading && aiClient.isConfigured() && snapshot != null);
+        btnRequestAiAnalysis.setAlpha(btnRequestAiAnalysis.isEnabled() ? 1f : 0.55f);
+    }
+
+    private void bindAiResult(AiFocusAnalysisResult result) {
+        layoutAiAnalysisResult.setVisibility(View.VISIBLE);
+        tvAiAnalysisSummary.setText(result.getSummary());
+        tvAiAnalysisStrengths.setText(formatBulletList(result.getStrengths()));
+        tvAiAnalysisImprovements.setText(formatBulletList(result.getImprovements()));
+    }
+
+    private String formatBulletList(List<String> items) {
+        if (items == null || items.isEmpty()) {
+            return "표시할 내용이 없습니다.";
+        }
+        StringBuilder builder = new StringBuilder();
+        for (String item : items) {
+            if (builder.length() > 0) {
+                builder.append('\n');
+            }
+            builder.append("• ").append(item);
+        }
+        return builder.toString();
     }
 
     private void updatePeriod(String period) {
