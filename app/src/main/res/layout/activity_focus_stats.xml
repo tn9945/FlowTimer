@@ -3,8 +3,18 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="집중 기록 통계" android:textColor="@color/flow_text_primary" android:textSize="28sp" android:textStyle="bold"/>
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:background="@drawable/bg_card" android:orientation="vertical" android:padding="14dp">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AI 집중 분석 연결 준비" android:textColor="@color/flow_sky_dark" android:textSize="16sp" android:textStyle="bold"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AI 집중 분석" android:textColor="@color/flow_sky_dark" android:textSize="16sp" android:textStyle="bold"/>
             <TextView android:id="@+id/tvAiConnectionStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="AI 집중 분석 연결 준비가 비활성화되어 있습니다." android:textColor="@color/flow_text_hint" android:textSize="14sp"/>
+            <Button android:id="@+id/btnRequestAiAnalysis" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:background="@drawable/bg_button_detail" android:backgroundTint="@color/flow_sky_dark" android:text="AI 집중 분석 요청" android:textAllCaps="false" android:textColor="@color/white"/>
+            <ProgressBar android:id="@+id/progressAiAnalysis" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_marginTop="10dp" android:visibility="gone"/>
+            <LinearLayout android:id="@+id/layoutAiAnalysisResult" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical" android:visibility="gone">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="분석 요약" android:textColor="@color/flow_text_primary" android:textStyle="bold"/>
+                <TextView android:id="@+id/tvAiAnalysisSummary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/flow_text_hint" android:textSize="14sp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="강점" android:textColor="@color/flow_text_primary" android:textStyle="bold"/>
+                <TextView android:id="@+id/tvAiAnalysisStrengths" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/flow_text_hint" android:textSize="14sp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="개선 사항" android:textColor="@color/flow_text_primary" android:textStyle="bold"/>
+                <TextView android:id="@+id/tvAiAnalysisImprovements" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/flow_text_hint" android:textSize="14sp"/>
+            </LinearLayout>
         </LinearLayout>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="최근 7일 집중 흐름" android:textStyle="bold"/>
         <com.example.flowtimer.WeeklyFocusBarChartView android:id="@+id/chartRecentSevenDays" android:layout_width="match_parent" android:layout_height="220dp" android:layout_marginTop="10dp" android:background="@drawable/bg_card" android:padding="8dp"/>
